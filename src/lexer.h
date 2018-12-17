@@ -22,6 +22,8 @@ public:
 	std::string s;
 
 	Token(uint32_t charInd = 0);
+
+	static std::vector<Token> tokenize(const std::string &s);
 };
 
 class Line {
@@ -33,7 +35,7 @@ public:
 	std::vector<Token> tokens;
 
 	Line(uint32_t lineInd = 0);
+
+	static std::vector<Line> split_stream(std::istream &in);
 };
 
-std::vector<Line> split_lines(std::istream &in);
-std::vector<Token> tokenize(const std::string &s);

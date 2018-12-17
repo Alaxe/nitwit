@@ -122,7 +122,7 @@ std::vector<Token>& concat_identifiers(std::vector<Token> &tok) {
 	}
 }
 
-std::vector<Line> split_lines(std::istream &in) {
+std::vector<Line> Line::split_stream(std::istream &in) {
 	std::vector<Line> ans;
 
 	Line cur(1);
@@ -176,7 +176,7 @@ std::vector<Line> split_lines(std::istream &in) {
 	return ans;
 }
 
-std::vector<Token> tokenize(const std::string &s) {
+std::vector<Token> Token::tokenize(const std::string &s) {
 	std::vector<Token> ans;
 	for (uint32_t i = 0;i < s.size();i++) {
 		if (isspace(s[i])) {
