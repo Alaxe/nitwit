@@ -11,10 +11,13 @@ bool ResultT::is_value() const {
 }
 
 StatementAST::~StatementAST() {}
-void StatementAST::debug_print() const {}
 
 const ResultT& ExprAST::get_result_type() {
 	return resultType;
+}
+void ExprAST::generate_c(std::ostream &out) const {
+	generate_expr(out);
+	out << ";\n";
 }
 std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 	std::vector<Token>::const_iterator begin,
@@ -63,6 +66,9 @@ const std::string& LitAST::get_val() const {
 void LitAST::debug_print() const {
 	std::cerr << "Literal " << val << "\n";
 }
+void LitAST::generate_expr(std::ostream &out) const {
+	out << val;
+}
 
 IdentifierAST::IdentifierAST(const Token &t, const Context &context):
 	name(t.s) {
@@ -83,6 +89,9 @@ void IdentifierAST::debug_print() const {
 		std::cerr << "(LValue) ";
 	}
 	std::cerr << name << "\n";
+}
+void IdentifierAST::generate_expr(std::ostream &out) const {
+	out << name;
 }
 
 BinOperatorAST::BinOperatorAST(const OperatorData *oprData,
@@ -112,6 +121,13 @@ void BinOperatorAST::debug_print() const {
 	std::cerr << "second argument " << oprData->name << "(\n";
 	rhs->debug_print();
 	std::cerr << ")\n";
+}
+void BinOperatorAST::generate_expr(std::ostream &out) const {
+	out << "(";
+	lhs->generate_expr(out);
+	out << ") " << oprData->cName << " (";
+	rhs->generate_expr(out);
+	out << ")";
 }
 
 FunctionCallAST::FunctionCallAST(const Context &context,
@@ -153,6 +169,17 @@ void FunctionCallAST::debug_print() const {
 		std::cerr << ")\n";
 	}
 }
+void FunctionCallAST::generate_expr(std::ostream &out) const {
+	out << funcName << "(";
+	if (!args.empty()) {
+		args[0]->generate_expr(out);
+		for (uint32_t i = 1;i < args.size();i++) {
+			out << ", ";
+			args[i]->generate_expr(out);
+		}
+	}
+	out << ")";
+}
 
 AssignmentAST::AssignmentAST(ExprAST::Stack &stack) {
 	assert (stack.size() >= 2);
@@ -175,6 +202,13 @@ void AssignmentAST::debug_print() const {
 	rhs->debug_print();
 	std::cerr << ")\n";
 }
+void AssignmentAST::generate_expr(std::ostream &out) const {
+	out << "(";
+	lhs->generate_expr(out);
+	out << ") = (";
+	rhs->generate_expr(out);
+	out << ")";
+}
 
 InputAST::InputAST(ExprAST::Stack &stack) {
 	assert (!stack.empty());
@@ -188,6 +222,18 @@ void InputAST::debug_print() const {
 	std::cerr << "input >> (\n";
 	operand->debug_print();
 	std::cerr << ")\n";
+}
+void InputAST::generate_expr(std::ostream &out) const {
+	out << "in_int( &(";
+	operand->generate_expr(out);
+	out << "))";
+}
+
+void InputAST::generate_default_c(std::ostream &out) {
+	out << "int in_int(int* a) {\n";
+	out << "    scanf(\"%i\", a);\n";
+	out << "    return *a;\n";
+	out << "}\n";
 }
 
 OutputAST::OutputAST(ExprAST::Stack &stack) {
@@ -203,6 +249,18 @@ void OutputAST::debug_print() const {
 	operand->debug_print();
 	std::cerr << ")\n";
 }
+void OutputAST::generate_expr(std::ostream &out) const {
+	out << "out_int(";
+	operand->generate_expr(out);
+	out << ")";
+}
+
+void OutputAST::generate_default_c(std::ostream &out) {
+	out << "int out_int(int a) {\n";
+	out << "    printf(\"%i\n\", a);\n";
+	out << "    return a;\n";
+	out << "}\n";
+}
 
 VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {
 	assert(typeTok.type == TokenType::Identifier);
@@ -217,6 +275,9 @@ void VarDefAST::add_to_context(Context &context) {
 void VarDefAST::debug_print() const {
 	std::cerr << "vardef (no type data) " << name << "\n";
 }
+void VarDefAST::generate_c(std::ostream &out) const {
+	out << "    " << name << " = 0;\n";
+}
 
 ReturnAST::ReturnAST(std::unique_ptr<ExprAST> val): returnVal(std::move(val)) {
 	assert(returnVal->get_result_type().is_value());
@@ -225,4 +286,9 @@ void ReturnAST::debug_print() const {
 	std::cerr << "Return (\n";
 	returnVal->debug_print();
 	std::cerr << ")\n";
+}
+void ReturnAST::generate_c(std::ostream &out) const {
+	out << "    return ";
+	returnVal->generate_expr(out);
+	out << ";\n";
 }

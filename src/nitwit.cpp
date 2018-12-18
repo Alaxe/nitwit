@@ -28,4 +28,5 @@ int main() {
 
 	GlobalContext globalContext = GlobalContext(code);
 	std::vector<Function> functions = Function::parse_all(code, globalContext);
+	globalContext.generate_c(std::cout);
 }

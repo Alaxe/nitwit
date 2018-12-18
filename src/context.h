@@ -1,12 +1,13 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "type-t.h"
 #include "function-t.h"
 #include "lexer.h"
+#include "type-t.h"
 
 class GlobalContext {
 private:
@@ -22,6 +23,8 @@ public:
 
 	const FunctionT* get_function(const std::string &name) const;
 	const TypeT* get_variable(const std::string &name) const;
+
+	void generate_c(std::ostream &out);
 };
 
 class Context {
@@ -35,4 +38,6 @@ public:
 
 	const FunctionT* get_function(const std::string &name) const;
 	const TypeT* get_variable(const std::string &name) const;
+
+	void generate_c(std::ostream &out);
 };

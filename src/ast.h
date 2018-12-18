@@ -11,8 +11,8 @@
 class StatementAST {
 public:
 	virtual ~StatementAST();
-	//a codegen virtual function
-	virtual void debug_print() const;
+	virtual void debug_print() const = 0;
+	virtual void generate_c(std::ostream &out) const = 0;
 };
 
 class ResultT {
@@ -38,6 +38,9 @@ protected:
 public:
 	const ResultT& get_result_type();
 
+	void generate_c(std::ostream &out) const;
+	virtual void generate_expr(std::ostream &out) const = 0;
+
 	static std::vector<std::unique_ptr<ExprAST>> parse(
 		std::vector<Token>::const_iterator begin,
 		std::vector<Token>::const_iterator end,
@@ -58,6 +61,7 @@ public:
 	LitAST(const Token &t);
 	const std::string& get_val() const;
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
 };
 
 class IdentifierAST : public ExprAST {
@@ -68,6 +72,7 @@ public:
 	IdentifierAST(const Token &t, const Context &context);
 	const std::string& get_name() const;
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
 };
 
 class BinOperatorAST : public ExprAST {
@@ -75,9 +80,12 @@ protected:
 	const OperatorData *oprData;
 	std::unique_ptr<ExprAST> lhs, rhs;
 
+
+
 public:
 	BinOperatorAST(const OperatorData *oprData, ExprAST::Stack &stack);
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
 };
 
 class FunctionCallAST : public ExprAST {
@@ -88,6 +96,7 @@ protected:
 public:
 	FunctionCallAST(const Context &context, ExprAST::Stack &stack);
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
 };
 
 class AssignmentAST : public ExprAST {
@@ -97,14 +106,18 @@ public:
 	AssignmentAST(ExprAST::Stack &stack);
 
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
 };
 
 class InputAST : public ExprAST {
 protected:
 	std::unique_ptr<ExprAST> operand;
 public:
-	InputAST(ExprAST::Stack &stack); 
+	InputAST(ExprAST::Stack &stack);
 	virtual void debug_print() const;
+	virtual void generate_expr(std::ostream &out) const;
+
+	static void generate_default_c(std::ostream &out);
 };
 
 class OutputAST : public ExprAST {
@@ -113,8 +126,10 @@ protected:
 public:
 	OutputAST(ExprAST::Stack &stack);
 	virtual void debug_print() const;
-};
+	virtual void generate_expr(std::ostream &out) const;
 
+	static void generate_default_c(std::ostream &out);
+};
 
 class VarDefAST : public StatementAST {
 private:
@@ -125,6 +140,7 @@ public:
 
 	void add_to_context(Context &context);
 	virtual void debug_print() const;
+	virtual void generate_c(std::ostream &out) const;
 };
 
 class ReturnAST : public StatementAST {
@@ -133,4 +149,5 @@ private:
 public:
 	ReturnAST(std::unique_ptr<ExprAST> val);
 	virtual void debug_print() const;
+	virtual void generate_c(std::ostream &out) const;
 };
