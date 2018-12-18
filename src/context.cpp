@@ -3,52 +3,8 @@
 #include <iostream>
 #include <cassert>
 
-void Context::declare_function(const std::string &name,
-	const FunctionT &funcT) {
-
-	assert(functions.find(name) == functions.end());
-	functions[name] = funcT;
-}
-
-void Context::declare_global_var(const std::string &name, const TypeT &type) {
-	assert(globalVar.find(name) == globalVar.end());
-	globalVar[name] = type;
-}
-
-void Context::declare_local_var(const std::string &name, const TypeT &type) {
-	assert(localVar.find(name) == localVar.end());
-	localVar[name] = type;
-}
-void Context::remove_locals() {
-	localVar.clear();
-}
-
-const FunctionT* Context::get_function(const std::string &name) const {
-	auto it = functions.find(name);
-
-	if (it != functions.end()) {
-		return &it->second;
-	} else {
-		return nullptr;
-	}
-}
-const TypeT* Context::get_variable(const std::string &name) const {
-	auto itLocal = localVar.find(name);
-
-	if (itLocal != localVar.end()) {
-		return &itLocal->second;
-	} else {
-		auto itGlobal = globalVar.find(name);
-		if (itGlobal != globalVar.end()) {
-			return &itGlobal->second;
-		} else {
-			return nullptr;
-		}
-	}
-}
-
-Context Context::generate_global(const std::vector<Line> &lines) {
-	Context context;
+GlobalContext::GlobalContext() {}
+GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 	for (const Line &l : lines) {
 		if (l.indent > 0) {
 			continue;
@@ -62,7 +18,7 @@ Context Context::generate_global(const std::vector<Line> &lines) {
 
 				assert(false);
 			}
-			context.declare_function(
+			declare_function(
 				l.tokens[2].s,
 				FunctionT((l.tokens.size() - 3) / 2)
 			);
@@ -86,10 +42,56 @@ Context Context::generate_global(const std::vector<Line> &lines) {
 			}
 			assert(l.tokens[2].type == TokenType::Identifier);
 
-			context.declare_global_var(l.tokens[2].s, TypeT());
+			declare_variable(l.tokens[2].s, TypeT());
 
 			std::cerr << "gvar " << l.tokens[2].s << "\n";
 		}
 	}
-	return context;
+}
+void GlobalContext::declare_function(const std::string &name,
+	const FunctionT &funcT) {
+
+	assert(functions.find(name) == functions.end());
+	functions[name] = funcT;
+}
+void GlobalContext::declare_variable(const std::string &name, const TypeT &type) {
+	assert(variables.find(name) == variables.end());
+	variables[name] = type;
+}
+const FunctionT* GlobalContext::get_function(const std::string &name) const {
+	auto it = functions.find(name);
+
+	if (it != functions.end()) {
+		return &it->second;
+	} else {
+		return nullptr;
+	}
+}
+const TypeT* GlobalContext::get_variable(const std::string &name) const {
+	auto it = variables.find(name);
+
+	if (it != variables.end()) {
+		return &it->second;
+	} else {
+		return nullptr;
+	}
+}
+
+Context::Context(const GlobalContext &gc): gc(gc) {}
+void Context::declare_variable(const std::string &name, const TypeT &type) {
+	assert(variables.find(name) == variables.end());
+	variables[name] = type;
+}
+
+const FunctionT* Context::get_function(const std::string &name) const {
+	return gc.get_function(name);
+}
+const TypeT* Context::get_variable(const std::string &name) const {
+	auto it = variables.find(name);
+
+	if (it != variables.end()) {
+		return &it->second;
+	} else {
+		return gc.get_variable(name);
+	}
 }

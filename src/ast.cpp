@@ -212,7 +212,7 @@ VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {
 	name = nameTok.s;
 }
 void VarDefAST::add_to_context(Context &context) {
-	context.declare_local_var(name, type);
+	context.declare_variable(name, type);
 }
 void VarDefAST::debug_print() const {
 	std::cerr << "vardef (no type data) " << name << "\n";

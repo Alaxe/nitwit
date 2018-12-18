@@ -14,11 +14,11 @@ public:
 	Function(
 		std::vector<Line>::const_iterator begin,
 		std::vector<Line>::const_iterator end,
-		Context context
+		const GlobalContext &globalContext
 	);
 
 	static std::vector<Function> parse_all(
 		const std::vector<Line> &code, 
-		const Context &context
+		const GlobalContext &globalContext
 	);
 };

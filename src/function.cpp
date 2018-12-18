@@ -3,9 +3,12 @@
 #include <cassert>
 #include <iostream>
 
-Function::Function(std::vector<Line>::const_iterator begin,
-	std::vector<Line>::const_iterator end,
-	Context context) {
+Function::Function(
+		std::vector<Line>::const_iterator begin,
+		std::vector<Line>::const_iterator end,
+		const GlobalContext &globalContext) {
+
+	Context context = Context(globalContext);
 
 	assert(begin->tokens[0].type == TokenType::DefFunc);
 	assert(begin->tokens.size() % 2 == 1);
@@ -16,7 +19,7 @@ Function::Function(std::vector<Line>::const_iterator begin,
 			assert(begin->tokens[i].s == "int");
 		} else {
 			args.push_back(begin->tokens[i].s);
-			context.declare_local_var(args.back(), TypeT());
+			context.declare_variable(args.back(), TypeT());
 		}
 	}
 
@@ -69,8 +72,9 @@ Function::Function(std::vector<Line>::const_iterator begin,
 	}
 }
 
-std::vector<Function> Function::parse_all(const std::vector<Line> &code,
-	const Context &context) {
+std::vector<Function> Function::parse_all(
+		const std::vector<Line> &code,
+		const GlobalContext &globalContext) {
 
 	std::vector<Function> functions;
 	for (uint32_t i = 0;i < code.size();i++) {
@@ -86,7 +90,7 @@ std::vector<Function> Function::parse_all(const std::vector<Line> &code,
 			}
 		}
 		functions.push_back(
-			Function(code.begin() + i, code.begin() + j, context)
+			Function(code.begin() + i, code.begin() + j, globalContext)
 		);
 		i = j - 1;
 	}
