@@ -76,7 +76,7 @@ const TypeT* GlobalContext::get_variable(const std::string &name) const {
 		return nullptr;
 	}
 }
-void GlobalContext::generate_c(std::ostream &out) {
+void GlobalContext::generate_c(std::ostream &out) const {
 	for (const auto &i : functions) {
 		out << "int " << i.first;
 		out << "(";
@@ -114,8 +114,8 @@ const TypeT* Context::get_variable(const std::string &name) const {
 		return gc.get_variable(name);
 	}
 }
-void Context::generate_c(std::ostream &out) {
+void Context::generate_c(std::ostream &out) const {
 	for (const auto &i : variables) {
-		out << "    int " << i.first << "\n";
+		out << "    int " << i.first << ";\n";
 	}
 }

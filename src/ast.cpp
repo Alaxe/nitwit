@@ -16,6 +16,7 @@ const ResultT& ExprAST::get_result_type() {
 	return resultType;
 }
 void ExprAST::generate_c(std::ostream &out) const {
+	out << "    ";
 	generate_expr(out);
 	out << ";\n";
 }
@@ -257,7 +258,7 @@ void OutputAST::generate_expr(std::ostream &out) const {
 
 void OutputAST::generate_default_c(std::ostream &out) {
 	out << "int out_int(int a) {\n";
-	out << "    printf(\"%i\n\", a);\n";
+	out << "    printf(\"%i\\n\", a);\n";
 	out << "    return a;\n";
 	out << "}\n";
 }

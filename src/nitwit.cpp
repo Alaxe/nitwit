@@ -19,14 +19,24 @@ int main() {
 	auto code = Line::split_stream(fin);
 	for (auto &i : code) {
 		i.tokens = Token::tokenize(i.s);
-		std::cout << i.lineInd << " (" << i.indent << "): ";
+		std::cerr << i.lineInd << " (" << i.indent << "): ";
 		for (auto &t : i.tokens) {
-			std::cout << "[" << (uint32_t) (t.type) << " " << t.s << "] ";
+			std::cerr << "[" << (uint32_t) (t.type) << " " << t.s << "] ";
 		}
-		std::cout << "\n";
+		std::cerr << "\n";
 	}
 
 	GlobalContext globalContext = GlobalContext(code);
 	std::vector<Function> functions = Function::parse_all(code, globalContext);
+
+	std::cout << "#include <stdio.h>\n";
+
+	InputAST::generate_default_c(std::cout);
+	OutputAST::generate_default_c(std::cout);
+
 	globalContext.generate_c(std::cout);
+
+	for (const auto &f : functions) {
+		f.generate_c(std::cout);
+	}
 }

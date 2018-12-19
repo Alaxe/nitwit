@@ -6,22 +6,25 @@
 Function::Function(
 		std::vector<Line>::const_iterator begin,
 		std::vector<Line>::const_iterator end,
-		const GlobalContext &globalContext) {
-
-	Context context = Context(globalContext);
+		const GlobalContext &globalContext):
+		context(globalContext) {
 
 	assert(begin->tokens[0].type == TokenType::DefFunc);
 	assert(begin->tokens.size() % 2 == 1);
+	assert(begin->tokens.size() >= 3);
 
 	for (uint32_t i = 1;i < begin->tokens.size();i++) {
 		assert(begin->tokens[i].type == TokenType::Identifier);
 		if (i % 2) {
 			assert(begin->tokens[i].s == "int");
 		} else {
-			args.push_back(begin->tokens[i].s);
-			context.declare_variable(args.back(), TypeT());
+			if (i > 2) {
+				args.push_back(begin->tokens[i].s);
+				context.declare_variable(args.back(), TypeT());
+			}
 		}
 	}
+	name = begin->tokens[2].s;
 
 	bool bodyStarted = false;
 	for (auto lineIt = begin + 1;lineIt != end;lineIt++) {
@@ -67,9 +70,28 @@ Function::Function(
 
 			bodyStarted = true;
 		}
-		statements.back()->debug_print();
-		std::cerr << "-----------------" << std::endl;
+		//statements.back()->debug_print();
+		//std::cerr << "-----------------" << std::endl;
 	}
+}
+
+void Function::generate_c(std::ostream &out) const {
+	out << "int " << name << "(";
+	if (args.empty()) {
+		out << "void";
+	} else {
+		out << "int " << args[0];
+		for (uint32_t i = 1;i < args.size();i++) {
+			out << ", int " << args[i];
+		}
+	}
+	out << ") {\n";
+	context.generate_c(out);
+
+	for (const auto &i : statements) {
+		i->generate_c(out);
+	}
+	out << "}\n";
 }
 
 std::vector<Function> Function::parse_all(

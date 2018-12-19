@@ -24,7 +24,7 @@ public:
 	const FunctionT* get_function(const std::string &name) const;
 	const TypeT* get_variable(const std::string &name) const;
 
-	void generate_c(std::ostream &out);
+	void generate_c(std::ostream &out) const;
 };
 
 class Context {
@@ -39,5 +39,5 @@ public:
 	const FunctionT* get_function(const std::string &name) const;
 	const TypeT* get_variable(const std::string &name) const;
 
-	void generate_c(std::ostream &out);
+	void generate_c(std::ostream &out) const;
 };

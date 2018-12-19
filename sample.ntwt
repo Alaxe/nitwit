@@ -1,19 +1,19 @@
 ;$ #int tes1 % #int
 $ int test
 
-$@ int sum int a int b 
+$@ int sum int a int b
     => + a b
 
 ;$@ # #int tractor #kon b par c #din ko
 
-$@ int main 
+$@ int main
     $ int a
     $ int b ; this is commented
 
     ;$% ##int arr ;por
-   ; = arr % ## int 10
-   ; => arr % # # + paz
-   ; => arr % # #
+    ;= arr % ## int 10
+    ;=> arr % # # + paz
+    ;=> arr % # #
 
     = a \\ b 5
     >> a >> b

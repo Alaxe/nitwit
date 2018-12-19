@@ -1,2 +1,4 @@
 nitwit
 *.o
+sample.c
+sample
