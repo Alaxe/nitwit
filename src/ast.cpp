@@ -256,16 +256,20 @@ void InputAST::debug_print() const {
 	std::cerr << ")\n";
 }
 void InputAST::generate_expr(std::ostream &out) const {
-	out << "in_int( &(";
+	out << "in_" << resultT.t.name << "(&(";
 	operand->generate_expr(out);
 	out << "))";
 }
 
 void InputAST::generate_default_c(std::ostream &out) {
-	out << "int in_int(int* a) {\n";
-	out << "    scanf(\"%i\", a);\n";
-	out << "    return *a;\n";
-	out << "}\n";
+	for (const auto &i : PrimTypeData::get_all()) {
+		const PrimTypeData &d = i.second;
+		out << d.cName << " in_" << d.name;
+		out << "(" << d.cName << "* a) {\n";
+		out << "    scanf(\"%\" " << d.scanfMacro << ", a);\n";
+		out << "    return *a;\n";
+		out << "}\n";
+	}
 }
 
 OutputAST::OutputAST(ExprAST::Stack &stack) {
@@ -285,16 +289,25 @@ void OutputAST::debug_print() const {
 	std::cerr << ")\n";
 }
 void OutputAST::generate_expr(std::ostream &out) const {
-	out << "out_int(";
+	out << "out_" << resultT.t.name << "(";
 	operand->generate_expr(out);
 	out << ")";
 }
 
 void OutputAST::generate_default_c(std::ostream &out) {
-	out << "int out_int(int a) {\n";
-	out << "    printf(\"%i\\n\", a);\n";
-	out << "    return a;\n";
-	out << "}\n";
+	//out << "int out_int(int a) {\n";
+	//out << "    printf(\"%i\\n\", a);\n";
+	//out << "    return a;\n";
+	//out << "}\n";
+	for (const auto &i : PrimTypeData::get_all()) {
+		const PrimTypeData &d = i.second;
+		out << d.cName << " out_" << d.name;
+		out << "(" << d.cName << " a) {\n";
+		out << "    printf(\"%\" " << d.printfMacro << ", a);\n";
+		out << "    return a;\n";
+		out << "}\n";
+	}
+
 }
 
 VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {

@@ -26,6 +26,7 @@ int main() {
 	std::vector<Function> functions = Function::parse_all(code, globalContext);
 
 	std::cout << "#include <stdio.h>\n";
+	std::cout << "#include <inttypes.h>\n";
 
 	InputAST::generate_default_c(std::cout);
 	OutputAST::generate_default_c(std::cout);

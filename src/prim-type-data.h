@@ -9,13 +9,17 @@ public:
 	bool isFloat;
 	uint32_t castIndex;
 	std::string cName;
+	std::string scanfMacro;
+	std::string printfMacro;
 
 private:
 	PrimTypeData(
 		const std::string &name,
 		bool isFloat,
 		uint32_t castIndex,
-		const std::string &cName
+		const std::string &cName,
+		const std::string &scanfMacro,
+		const std::string &printfMacro
 	);
 
 	static std::unordered_map<std::string, PrimTypeData> types;
@@ -29,4 +33,5 @@ public:
 	);
 	static std::string get_max_int();
 	static std::string get_max_float();
+	static const std::unordered_map<std::string, PrimTypeData>& get_all();
 };
