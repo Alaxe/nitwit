@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <istream>
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -12,6 +12,7 @@ enum class TokenType {
 	DefFunc,
 	Return,
 	LitInt,
+	LitFloat,
 	Identifier,
 };
 
@@ -26,6 +27,8 @@ public:
 	static std::vector<Token> tokenize(const std::string &s);
 };
 
+std::ostream& operator<< (std::ostream &out, const Token &t);
+
 class Line {
 public:
 	std::string s;
@@ -39,3 +42,4 @@ public:
 	static std::vector<Line> split_stream(std::istream &in);
 };
 
+std::ostream& operator<< (std::ostream &out, const Line &l);

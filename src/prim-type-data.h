@@ -27,5 +27,6 @@ public:
 		const PrimTypeData *t1,
 		const PrimTypeData *t2
 	);
+	static std::string get_max_int();
+	static std::string get_max_float();
 };
-

@@ -19,11 +19,7 @@ int main() {
 	auto code = Line::split_stream(fin);
 	for (auto &i : code) {
 		i.tokens = Token::tokenize(i.s);
-		std::cerr << i.lineInd << " (" << i.indent << "): ";
-		for (auto &t : i.tokens) {
-			std::cerr << "[" << (uint32_t) (t.type) << " " << t.s << "] ";
-		}
-		std::cerr << "\n";
+		std::cerr << i << "\n";
 	}
 
 	GlobalContext globalContext = GlobalContext(code);

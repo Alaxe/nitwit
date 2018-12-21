@@ -23,8 +23,8 @@ public:
 		Identifier,
 		Unknown
 	};
-	TypeT type;
-	Category category;
+	Category cat;
+	TypeT t;
 
 	ResultT(Category cat = Category::Unknown);
 	bool is_value() const;
@@ -32,11 +32,11 @@ public:
 
 class ExprAST : public StatementAST {
 protected:
-	ResultT resultType;
+	ResultT resultT;
 	typedef std::vector<std::unique_ptr<ExprAST>> Stack;
 
 public:
-	const ResultT& get_result_type();
+	const ResultT& get_result_t();
 
 	void generate_c(std::ostream &out) const;
 	virtual void generate_expr(std::ostream &out) const = 0;

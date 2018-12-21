@@ -6,14 +6,15 @@
 #include <vector>
 
 #include "ast.h"
+#include "function-t.h"
 
 class Function {
 private:
-	std::vector<std::string> args;
 	std::vector<std::unique_ptr<StatementAST>> statements;
+	FunctionT proto;
 
-	std::string name;
-	Context context;
+	Context context; //shouldn't keep a context here, but just the declared variables
+	//this way we won't be risking dangling references
 
 public:
 	Function(

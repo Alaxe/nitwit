@@ -1,19 +1,20 @@
 #include "ast.h"
+#include "prim-type-data.h"
 
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 
-ResultT::ResultT(Category cat): category(cat) {}
+ResultT::ResultT(Category cat): cat(cat) {}
 bool ResultT::is_value() const {
-	return (category == Category::RValue)
-		|| (category == Category::LValue);
+	return (cat == Category::RValue)
+		|| (cat == Category::LValue);
 }
 
 StatementAST::~StatementAST() {}
 
-const ResultT& ExprAST::get_result_type() {
-	return resultType;
+const ResultT& ExprAST::get_result_t() {
+	return resultT;
 }
 void ExprAST::generate_c(std::ostream &out) const {
 	out << "    ";
@@ -28,11 +29,15 @@ std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 	std::vector<std::unique_ptr<ExprAST>> stack;
 	for (auto it = end - 1;it + 1 != begin;it--) {
 		const Token &tok = *it;
-		if (tok.type == TokenType::LitInt) {
+		switch (tok.type) {
+		case TokenType::LitInt:
+		case TokenType::LitFloat:
 			stack.emplace_back(new LitAST(tok));
-		} else if (tok.type == TokenType::Identifier) {
+			break;
+		case TokenType::Identifier:
 			stack.emplace_back(new IdentifierAST(tok, context));
-		} else {
+			break;
+		default:
 			assert(tok.type == TokenType::Operator);
 			const OperatorData* oprData = OperatorData::get(tok.s);
 
@@ -59,7 +64,17 @@ std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 }
 
 LitAST::LitAST(const Token &t): val(t.s) {
-	resultType.category = ResultT::Category::RValue;
+	resultT.cat = ResultT::Category::RValue;
+	resultT.t.cat = TypeT::Category::Primitive;
+
+	if (t.type == TokenType::LitInt) {
+		resultT.t.name = PrimTypeData::get_max_int();
+	} else if (t.type == TokenType::LitFloat) {
+		resultT.t.name = PrimTypeData::get_max_float();
+	} else {
+		assert(false);
+	}
+
 }
 const std::string& LitAST::get_val() const {
 	return val;
@@ -76,9 +91,10 @@ IdentifierAST::IdentifierAST(const Token &t, const Context &context):
 
 	const TypeT *typePtr = context.get_variable(t.s);
 	if (typePtr == nullptr) {
-		resultType.category = ResultT::Category::Identifier;
+		resultT.cat = ResultT::Category::Identifier;
+		resultT.t = *typePtr;
 	} else {
-		resultType.category = ResultT::Category::LValue;
+		resultT.cat = ResultT::Category::LValue;
 	}
 }
 const std::string& IdentifierAST::get_name() const {
@@ -86,7 +102,7 @@ const std::string& IdentifierAST::get_name() const {
 }
 void IdentifierAST::debug_print() const {
 	std::cerr << "Identifier ";
-	if (resultType.category == ResultT::Category::LValue) {
+	if (resultT.cat == ResultT::Category::LValue) {
 		std::cerr << "(LValue) ";
 	}
 	std::cerr << name << "\n";
@@ -109,10 +125,21 @@ BinOperatorAST::BinOperatorAST(const OperatorData *oprData,
 	//It's a normal operator, so it only requires its arguments to
 	//values or references
 
-	resultType.category = ResultT::Category::RValue;
 
-	assert(lhs->get_result_type().is_value());
-	assert(rhs->get_result_type().is_value());
+	const ResultT &lRes = lhs->get_result_t();
+	const ResultT &rRes = rhs->get_result_t();
+	assert(lRes.is_value());
+	assert(rRes.is_value());
+	assert(rRes.t.cat == TypeT::Category::Primitive);
+	assert(lRes.t.cat == TypeT::Category::Primitive);
+
+	resultT.cat = ResultT::Category::RValue;
+	resultT.t.cat = TypeT::Category::Primitive;
+	resultT.t.name = PrimTypeData::combine(
+		PrimTypeData::get(lRes.t.name),
+		PrimTypeData::get(rRes.t.name)
+	)->name;
+
 }
 void BinOperatorAST::debug_print() const {
 	std::cerr << "binary operator " << oprData->name << "\n";
@@ -146,12 +173,12 @@ FunctionCallAST::FunctionCallAST(const Context &context,
 
 	const FunctionT *funcT = context.get_function(funcName);
 	assert(funcT != nullptr);
-	assert(funcT->argCnt <= stack.size());
+	assert(funcT->args.size() <= stack.size());
 
-	resultType.category = ResultT::Category::RValue;
+	resultT.cat = ResultT::Category::RValue;
 
-	for (uint32_t i = 0;i < funcT->argCnt;i++) {
-		const ResultT &argT = stack.back()->get_result_type();
+	for (uint32_t i = 0;i < funcT->args.size();i++) {
+		const ResultT &argT = stack.back()->get_result_t();
 		assert(argT.is_value());
 		//add a more thorough type check when, well, we have types
 
@@ -189,10 +216,10 @@ AssignmentAST::AssignmentAST(ExprAST::Stack &stack) {
 	rhs = std::move(stack.back());
 	stack.pop_back();
 
-	assert(lhs->get_result_type().category == ResultT::Category::LValue);
-	assert(rhs->get_result_type().is_value());
+	assert(lhs->get_result_t().cat == ResultT::Category::LValue);
+	assert(rhs->get_result_t().is_value());
 
-	resultType.category = ResultT::Category::RValue;
+	resultT.cat = ResultT::Category::RValue;
 }
 void AssignmentAST::debug_print() const {
 	std::cerr << "assignment \n";
@@ -216,8 +243,8 @@ InputAST::InputAST(ExprAST::Stack &stack) {
 	operand = std::move(stack.back());
 	stack.pop_back();
 
-	assert(operand->get_result_type().category == ResultT::Category::LValue);
-	resultType.category = ResultT::Category::RValue;
+	assert(operand->get_result_t().cat == ResultT::Category::LValue);
+	resultT.cat = ResultT::Category::RValue;
 }
 void InputAST::debug_print() const {
 	std::cerr << "input >> (\n";
@@ -242,8 +269,8 @@ OutputAST::OutputAST(ExprAST::Stack &stack) {
 	operand = std::move(stack.back());
 	stack.pop_back();
 
-	assert(operand->get_result_type().is_value());
-	resultType.category = ResultT::Category::RValue;
+	assert(operand->get_result_t().is_value());
+	resultT.cat = ResultT::Category::RValue;
 }
 void OutputAST::debug_print() const {
 	std::cerr << "output >> (\n";
@@ -265,8 +292,11 @@ void OutputAST::generate_default_c(std::ostream &out) {
 
 VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {
 	assert(typeTok.type == TokenType::Identifier);
-	assert(typeTok.s == "int");
 	assert(nameTok.type == TokenType::Identifier);
+
+	assert(typeTok.s != "void");
+	assert(PrimTypeData::get(typeTok.s));
+	type = TypeT(TypeT::Category::Primitive, typeTok.s);
 
 	name = nameTok.s;
 }
@@ -281,7 +311,7 @@ void VarDefAST::generate_c(std::ostream &out) const {
 }
 
 ReturnAST::ReturnAST(std::unique_ptr<ExprAST> val): returnVal(std::move(val)) {
-	assert(returnVal->get_result_type().is_value());
+	assert(returnVal->get_result_t().is_value());
 }
 void ReturnAST::debug_print() const {
 	std::cerr << "Return (\n";

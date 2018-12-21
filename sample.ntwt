@@ -8,15 +8,15 @@ $@ int sum int a int b
 
 $@ int main
     $ int a
-    $ int b ; this is commented
-
-    ;$% ##int arr ;por
-    ;= arr % ## int 10
-    ;=> arr % # # + paz
-    ;=> arr % # #
+    $ real b ; this is commented
+    = a 3
+    = b 4.25
+    = b .23254
+    ;= b 3.353.3523
 
     = a \\ b 5
     >> a >> b
+    << + a b
     = a @sum a \
         b
     << a

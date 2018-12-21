@@ -3,6 +3,35 @@
 #include <iostream>
 #include <cassert>
 
+#include "prim-type-data.h"
+
+void GlobalContext::parse_func_declaration(const Line &l) {
+	declare_function(FunctionT(l));
+}
+void GlobalContext::parse_var_declaration(const Line &l) {
+	std::cerr << l << "\n";
+	if (l.tokens.size() != 3) {
+		std::cerr << "Invalid number of args for var ";
+		std::cerr << "def on line " << l.lineInd;
+		std::cerr << "\n";
+		assert(false);
+	}
+	const Token &typeTok = l.tokens[1];
+	const Token &nameTok = l.tokens[2];
+
+	assert(typeTok.type == TokenType::Identifier);
+	assert(PrimTypeData::get(typeTok.s));
+	assert(nameTok.type == TokenType::Identifier);
+
+	declare_variable(
+		nameTok.s,
+		TypeT(TypeT::Category::Primitive, typeTok.s)
+	);
+	//std::cerr << nameTok.s << "\n";
+
+	//std::cerr << "gvar " << l.tokens[2].s << "\n";
+}
+
 GlobalContext::GlobalContext() {}
 GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 	for (const Line &l : lines) {
@@ -11,49 +40,18 @@ GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 		}
 		const TokenType &tt = l.tokens[0].type;
 		if (tt == TokenType::DefFunc) {
-			if ((l.tokens.size() < 3) || (l.tokens.size() % 2 == 0)) {
-				std::cerr << "Invalid number of tokens for ";
-				std::cerr << "func def on line ";
-				std::cerr << l.lineInd << "\n";
-
-				assert(false);
-			}
-			declare_function(
-				l.tokens[2].s,
-				FunctionT((l.tokens.size() - 3) / 2)
-			);
-
-			std::cerr << "gfunc " << l.tokens[2].s << " ";
-			std::cerr << (l.tokens.size() - 3) / 2 << "\n";
-
+			parse_func_declaration(l);
 		} else if ((tt == TokenType::DefVar) || (tt == TokenType::DefWeak)) {
-			if (l.tokens.size() < 3) {
-				std::cerr << "Invalid number of args for var ";
-				std::cerr << "def on line " << l.lineInd;
-				std::cerr << "\n"; 
-
-				assert(false);
-			} else if (l.tokens.size() > 3) {
-				std::cerr << "Trailing tokens after var ";
-				std::cerr << "declaration on line ";
-				std::cerr << l.lineInd << "\n";
-
-				assert(false);
-			}
-			assert(l.tokens[2].type == TokenType::Identifier);
-
-			declare_variable(l.tokens[2].s, TypeT());
-
-			std::cerr << "gvar " << l.tokens[2].s << "\n";
+			parse_var_declaration(l);
 		}
 	}
 }
-void GlobalContext::declare_function(const std::string &name,
-	const FunctionT &funcT) {
 
-	assert(functions.find(name) == functions.end());
-	functions[name] = funcT;
+void GlobalContext::declare_function(const FunctionT &func) {
+	assert(functions.find(func.name) == functions.end());
+	functions[func.name] = func;
 }
+
 void GlobalContext::declare_variable(const std::string &name, const TypeT &type) {
 	assert(variables.find(name) == variables.end());
 	variables[name] = type;
@@ -78,21 +76,12 @@ const TypeT* GlobalContext::get_variable(const std::string &name) const {
 }
 void GlobalContext::generate_c(std::ostream &out) const {
 	for (const auto &i : functions) {
-		out << "int " << i.first;
-		out << "(";
-		if (i.second.argCnt == 0) {
-			out << "void";
-		} else {
-			out << "int";
-			for (uint32_t j = 1;j < i.second.argCnt;j++) {
-				out << ", int";
-			}
-		}
-		out << ");\n";
+		i.second.generate_c(out);
+		out << ";\n";
 	}
 
 	for (const auto &i : variables) {
-		out << "int " << i.first << ";\n";
+		out << i.second.get_c_name() << " " << i.first << ";\n";
 	}
 }
 
@@ -116,6 +105,6 @@ const TypeT* Context::get_variable(const std::string &name) const {
 }
 void Context::generate_c(std::ostream &out) const {
 	for (const auto &i : variables) {
-		out << "    int " << i.first << ";\n";
+		out << "    " << i.second.get_c_name() << " " << i.first << ";\n";
 	}
 }

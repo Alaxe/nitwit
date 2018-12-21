@@ -1,11 +1,10 @@
 #include "lexer.h"
 
+#include <cassert>
+
 Token::Token(uint32_t charInd): type(TokenType::Unknown), charInd(charInd) {}
 
-Line::Line(uint32_t lineInd): lineInd(lineInd), indent(0) {}
-
 const char OPERATOR_CHARSET[] = "~!@#$%^&*(){}[]?+\\|`-:<=>";
-
 inline bool is_identifier_start(char c) {
 	return isalpha(c);
 }
@@ -122,6 +121,68 @@ std::vector<Token>& concat_identifiers(std::vector<Token> &tok) {
 	}
 }
 
+std::vector<Token> Token::tokenize(const std::string &s) {
+	std::vector<Token> ans;
+	for (uint32_t i = 0;i < s.size();i++) {
+		if (isspace(s[i])) {
+			continue;
+		}
+		Token cur;
+		cur.charInd = i;
+		if ((s[i] == '.') || (isdigit(s[i]))) {
+			uint32_t dotCnt = s[i] == '.';
+
+			cur.s += s[i];
+			while ((i + 1 < s.size()) 
+				&& ((isdigit(s[i + 1])) || (s[i + 1] == '.'))
+			) {
+				dotCnt += (s[++i] == '.');
+				cur.s += s[i];
+			}
+			if (dotCnt == 0) {
+				cur.type = TokenType::LitInt;
+			} else if (dotCnt == 1) {
+				cur.type = TokenType::LitFloat;
+			} else {
+				cur.type = TokenType::Unknown;
+				assert(false);
+			}
+			ans.push_back(cur);
+		} else if (is_identifier_start(s[i])) {
+			cur.type = TokenType::Identifier;
+			cur.s += s[i];
+			while ((i + 1 < s.size()) && (is_identifier_body(s[i + 1]))) {
+				cur.s += s[++i];
+			}
+			ans.push_back(cur);
+		} else if (is_operator(s[i])) {
+			cur.type = TokenType::Operator;
+			cur.s = s[i];
+
+			if ((s[i] == '#') || (s[i] == ':')) {
+				ans.push_back(cur);
+				continue;
+			} 
+			while ((i + 1 < s.size()) && (is_operator(s[i + 1]))) {
+				cur.s += s[++i];
+			}
+			if (cur.s == "=>") {
+				cur.type = TokenType::Return;
+			} else if (cur.s == "$") {
+				cur.type = TokenType::DefVar;
+			} else if (cur.s == "$@") {
+				cur.type = TokenType::DefFunc;
+			}
+			ans.push_back(cur);
+		}
+	}
+	return concat_identifiers(ans);
+}
+std::ostream& operator<< (std::ostream &out, const Token &t) {
+	return out << "[" << (uint32_t) (t.type) << " " << t.s << "]";
+}
+
+Line::Line(uint32_t lineInd): lineInd(lineInd), indent(0) {}
 std::vector<Line> Line::split_stream(std::istream &in) {
 	std::vector<Line> ans;
 
@@ -176,48 +237,10 @@ std::vector<Line> Line::split_stream(std::istream &in) {
 	return ans;
 }
 
-std::vector<Token> Token::tokenize(const std::string &s) {
-	std::vector<Token> ans;
-	for (uint32_t i = 0;i < s.size();i++) {
-		if (isspace(s[i])) {
-			continue;
-		}
-		Token cur;
-		cur.charInd = i;
-		if (isdigit(s[i])) {
-			cur.type = TokenType::LitInt;
-			cur.s += s[i];
-			while ((i + 1 < s.size()) && (isdigit(s[i + 1]))) {
-				cur.s += s[++i];
-			}
-			ans.push_back(cur);
-		} else if (is_identifier_start(s[i])) {
-			cur.type = TokenType::Identifier;
-			cur.s += s[i];
-			while ((i + 1 < s.size()) && (is_identifier_body(s[i + 1]))) {
-				cur.s += s[++i];
-			}
-			ans.push_back(cur);
-		} else if (is_operator(s[i])) {
-			cur.type = TokenType::Operator;
-			cur.s = s[i];
-
-			if ((s[i] == '#') || (s[i] == ':')) {
-				ans.push_back(cur);
-				continue;
-			} 
-			while ((i + 1 < s.size()) && (is_operator(s[i + 1]))) {
-				cur.s += s[++i];
-			}
-			if (cur.s == "=>") {
-				cur.type = TokenType::Return;
-			} else if (cur.s == "$") {
-				cur.type = TokenType::DefVar;
-			} else if (cur.s == "$@") {
-				cur.type = TokenType::DefFunc;
-			}
-			ans.push_back(cur);
-		}
+std::ostream& operator<< (std::ostream &out, const Line &l) {
+	out<< l.lineInd << " (" << l.indent << "): ";
+	for (auto &t : l.tokens) {
+		out << t << " ";
 	}
-	return concat_identifiers(ans);
+	return out;
 }

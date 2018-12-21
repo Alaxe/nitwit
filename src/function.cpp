@@ -4,27 +4,14 @@
 #include <iostream>
 
 Function::Function(
-		std::vector<Line>::const_iterator begin,
-		std::vector<Line>::const_iterator end,
-		const GlobalContext &globalContext):
-		context(globalContext) {
+	std::vector<Line>::const_iterator begin,
+	std::vector<Line>::const_iterator end,
+	const GlobalContext &globalContext
+): proto(*begin), context(globalContext) {
 
-	assert(begin->tokens[0].type == TokenType::DefFunc);
-	assert(begin->tokens.size() % 2 == 1);
-	assert(begin->tokens.size() >= 3);
-
-	for (uint32_t i = 1;i < begin->tokens.size();i++) {
-		assert(begin->tokens[i].type == TokenType::Identifier);
-		if (i % 2) {
-			assert(begin->tokens[i].s == "int");
-		} else {
-			if (i > 2) {
-				args.push_back(begin->tokens[i].s);
-				context.declare_variable(args.back(), TypeT());
-			}
-		}
+	for (const auto &i : proto.args) {
+		context.declare_variable(i.second, i.first);
 	}
-	name = begin->tokens[2].s;
 
 	bool bodyStarted = false;
 	for (auto lineIt = begin + 1;lineIt != end;lineIt++) {
@@ -76,16 +63,8 @@ Function::Function(
 }
 
 void Function::generate_c(std::ostream &out) const {
-	out << "int " << name << "(";
-	if (args.empty()) {
-		out << "void";
-	} else {
-		out << "int " << args[0];
-		for (uint32_t i = 1;i < args.size();i++) {
-			out << ", int " << args[i];
-		}
-	}
-	out << ") {\n";
+	proto.generate_c(out);
+	out << " {\n";
 	context.generate_c(out);
 
 	for (const auto &i : statements) {

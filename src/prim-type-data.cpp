@@ -52,4 +52,9 @@ const PrimTypeData* PrimTypeData::combine(
 	}
 }
 
-
+std::string PrimTypeData::get_max_int() {
+	return "int64";
+}
+std::string PrimTypeData::get_max_float() {
+	return "real";
+}
