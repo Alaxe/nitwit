@@ -4,6 +4,12 @@ $ int test
 $@ int sum int a int b
     => + a b
 
+$@ void print_ans
+    << 42
+
+$@ int print_num int a
+    << a
+
 ;$@ # #int tractor #kon b par c #din ko
 
 $@ int main
@@ -13,6 +19,9 @@ $@ int main
     = b 4.25
     = b .23254
     ;= b 3.353.3523
+
+    @print_num 5
+    << + 2 << + 2 3 @print_ans 
 
     = a \\ b 5
     >> a >> b

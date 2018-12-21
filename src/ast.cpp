@@ -92,9 +92,9 @@ IdentifierAST::IdentifierAST(const Token &t, const Context &context):
 	const TypeT *typePtr = context.get_variable(t.s);
 	if (typePtr == nullptr) {
 		resultT.cat = ResultT::Category::Identifier;
-		resultT.t = *typePtr;
 	} else {
 		resultT.cat = ResultT::Category::LValue;
+		resultT.t = *typePtr;
 	}
 }
 const std::string& IdentifierAST::get_name() const {
@@ -175,16 +175,17 @@ FunctionCallAST::FunctionCallAST(const Context &context,
 	assert(funcT != nullptr);
 	assert(funcT->args.size() <= stack.size());
 
-	resultT.cat = ResultT::Category::RValue;
-
 	for (uint32_t i = 0;i < funcT->args.size();i++) {
 		const ResultT &argT = stack.back()->get_result_t();
 		assert(argT.is_value());
-		//add a more thorough type check when, well, we have types
+		assert(argT.t.cat == TypeT::Category::Primitive);
 
 		args.push_back(std::move(stack.back()));
 		stack.pop_back();
 	}
+
+	resultT.cat = ResultT::Category::RValue;
+	resultT.t = funcT->returnT;
 }
 void FunctionCallAST::debug_print() const {
 	std::cerr << "function call " << funcName << " with ";
@@ -220,6 +221,7 @@ AssignmentAST::AssignmentAST(ExprAST::Stack &stack) {
 	assert(rhs->get_result_t().is_value());
 
 	resultT.cat = ResultT::Category::RValue;
+	resultT.t = lhs->get_result_t().t;
 }
 void AssignmentAST::debug_print() const {
 	std::cerr << "assignment \n";
@@ -244,7 +246,9 @@ InputAST::InputAST(ExprAST::Stack &stack) {
 	stack.pop_back();
 
 	assert(operand->get_result_t().cat == ResultT::Category::LValue);
+	assert(operand->get_result_t().t.cat == TypeT::Category::Primitive);
 	resultT.cat = ResultT::Category::RValue;
+	resultT.t = operand->get_result_t().t;
 }
 void InputAST::debug_print() const {
 	std::cerr << "input >> (\n";
@@ -270,7 +274,10 @@ OutputAST::OutputAST(ExprAST::Stack &stack) {
 	stack.pop_back();
 
 	assert(operand->get_result_t().is_value());
+	assert(operand->get_result_t().t.cat == TypeT::Category::Primitive);
+
 	resultT.cat = ResultT::Category::RValue;
+	resultT.t = operand->get_result_t().t;
 }
 void OutputAST::debug_print() const {
 	std::cerr << "output >> (\n";
@@ -301,6 +308,7 @@ VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {
 	name = nameTok.s;
 }
 void VarDefAST::add_to_context(Context &context) {
+	//std::cerr << "registering " << name << " " << type.name << std::endl;
 	context.declare_variable(name, type);
 }
 void VarDefAST::debug_print() const {
@@ -310,9 +318,8 @@ void VarDefAST::generate_c(std::ostream &out) const {
 	out << "    " << name << " = 0;\n";
 }
 
-ReturnAST::ReturnAST(std::unique_ptr<ExprAST> val): returnVal(std::move(val)) {
-	assert(returnVal->get_result_t().is_value());
-}
+ReturnAST::ReturnAST(std::unique_ptr<ExprAST> val): returnVal(std::move(val)) {}
+
 void ReturnAST::debug_print() const {
 	std::cerr << "Return (\n";
 	returnVal->debug_print();

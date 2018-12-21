@@ -10,12 +10,15 @@ Function::Function(
 ): proto(*begin), context(globalContext) {
 
 	for (const auto &i : proto.args) {
+		std::cerr << "arg " << i.second << " " << i.first.name << "\n";
+		//assert(i.first.cat == TypeT::Category::Primitive);
 		context.declare_variable(i.second, i.first);
 	}
 
 	bool bodyStarted = false;
 	for (auto lineIt = begin + 1;lineIt != end;lineIt++) {
 		auto tok = lineIt[0].tokens;
+		std::cerr << "cur line\n" << *lineIt << "\n";
 		if (tok[0].type == TokenType::DefVar) {
 			assert(tok.size() == 3);
 			assert(!bodyStarted);
@@ -27,6 +30,10 @@ Function::Function(
 			ptr->add_to_context(context);
 			statements.push_back(std::move(ptr));
 		} else if (tok[0].type == TokenType::Return) {
+			if (proto.returnT.cat == TypeT::Category::Void) {
+				assert(tok.size() == 1);
+				continue;
+			}
 			auto expr = ExprAST::parse(
 				tok.begin() + 1,
 				tok.end(),
@@ -34,6 +41,9 @@ Function::Function(
 			);
 
 			assert(expr.size() == 1);
+			const ResultT &retT = expr[0]->get_result_t();
+			assert(retT.is_value());
+			assert(retT.t.cat == TypeT::Category::Primitive);
 
 			std::unique_ptr<ReturnAST> ptr(
 				new ReturnAST(std::move(expr[0]))
@@ -49,6 +59,7 @@ Function::Function(
 			);
 
 			for (auto &i : expr) {
+				assert(i->get_result_t().is_value());
 				std::unique_ptr<StatementAST> ptr(
 					static_cast<StatementAST*>(i.release())
 				);
