@@ -33,9 +33,9 @@ public:
 class ExprAST : public StatementAST {
 protected:
 	ResultT resultT;
-	typedef std::vector<std::unique_ptr<ExprAST>> Stack;
 
 public:
+	typedef std::vector<std::unique_ptr<ExprAST>> Stack;
 	const ResultT& get_result_t();
 
 	void generate_c(std::ostream &out) const;
@@ -129,18 +129,6 @@ public:
 	virtual void generate_expr(std::ostream &out) const;
 
 	static void generate_default_c(std::ostream &out);
-};
-
-class VarDefAST : public StatementAST {
-private:
-	std::string name;
-	TypeT type;
-public:
-	VarDefAST(const Token &typeTok, const Token &nameTok);
-
-	void add_to_context(Context &context);
-	virtual void debug_print() const;
-	virtual void generate_c(std::ostream &out) const;
 };
 
 class ReturnAST : public StatementAST {

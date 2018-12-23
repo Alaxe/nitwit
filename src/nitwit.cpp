@@ -23,17 +23,21 @@ int main() {
 	}
 
 	GlobalContext globalContext = GlobalContext(code);
-	std::vector<Function> functions = Function::parse_all(code, globalContext);
+	std::vector<Function> functions = Function::parse_all(
+		code,
+		globalContext
+	);
 
-	std::cout << "#include <stdio.h>\n";
-	std::cout << "#include <inttypes.h>\n";
+	std::ofstream fout("sample.c");
+	fout << "#include <stdio.h>\n";
+	fout << "#include <inttypes.h>\n";
 
-	InputAST::generate_default_c(std::cout);
-	OutputAST::generate_default_c(std::cout);
+	InputAST::generate_default_c(fout);
+	OutputAST::generate_default_c(fout);
 
-	globalContext.generate_c(std::cout);
+	globalContext.generate_c(fout);
 
 	for (const auto &f : functions) {
-		f.generate_c(std::cout);
+		f.generate_c(fout);
 	}
 }

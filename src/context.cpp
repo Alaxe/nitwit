@@ -5,11 +5,21 @@
 
 #include "prim-type-data.h"
 
+VarData::VarData() {}
+VarData::VarData(const TypeT &type, const std::string &name):
+	type(type), name(name) {}
+void VarData::generate_c(std::ostream &out) const {
+	out << type.get_c_name() << " ";
+	out << name << ";\n";
+}
+
+std::string GlobalContext::get_c_name(const std::string &name) {
+	return "g_" + name;
+}
 void GlobalContext::parse_func_declaration(const Line &l) {
 	declare_function(FunctionT(l));
 }
 void GlobalContext::parse_var_declaration(const Line &l) {
-	std::cerr << l << "\n";
 	if (l.tokens.size() != 3) {
 		std::cerr << "Invalid number of args for var ";
 		std::cerr << "def on line " << l.lineInd;
@@ -48,13 +58,19 @@ GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 }
 
 void GlobalContext::declare_function(const FunctionT &func) {
-	assert(functions.find(func.name) == functions.end());
+	assert(get_function(func.name) == nullptr);
+	assert(get_variable(func.name) == nullptr);
 	functions[func.name] = func;
 }
 
-void GlobalContext::declare_variable(const std::string &name, const TypeT &type) {
-	assert(variables.find(name) == variables.end());
-	variables[name] = type;
+void GlobalContext::declare_variable(
+	const std::string &name,
+	const TypeT &type
+) {
+	assert(get_function(name) == nullptr);
+	assert(get_variable(name) == nullptr);
+
+	variables[name] = VarData(type, get_c_name(name));
 }
 const FunctionT* GlobalContext::get_function(const std::string &name) const {
 	auto it = functions.find(name);
@@ -65,7 +81,7 @@ const FunctionT* GlobalContext::get_function(const std::string &name) const {
 		return nullptr;
 	}
 }
-const TypeT* GlobalContext::get_variable(const std::string &name) const {
+const VarData* GlobalContext::get_variable(const std::string &name) const {
 	auto it = variables.find(name);
 
 	if (it != variables.end()) {
@@ -81,30 +97,57 @@ void GlobalContext::generate_c(std::ostream &out) const {
 	}
 
 	for (const auto &i : variables) {
-		out << i.second.get_c_name() << " " << i.first << ";\n";
+		i.second.generate_c(out);
 	}
 }
 
-Context::Context(const GlobalContext &gc): gc(gc) {}
-void Context::declare_variable(const std::string &name, const TypeT &type) {
-	assert(variables.find(name) == variables.end());
-	variables[name] = type;
+
+Context::VarInst::VarInst() {}
+Context::VarInst::VarInst(const VarData &var, const uint32_t &indent):
+	var(var), indent(indent) {}
+
+Context::VarStack::VarStack(): nextId(0) {}
+
+std::string Context::get_c_name(const std::string &name, const uint32_t &id) {
+	return "l_" + std::to_string(id) + "_" + name;
 }
 
+Context::Context(const GlobalContext &gc): curIndent(0), gc(gc) {}
 const FunctionT* Context::get_function(const std::string &name) const {
 	return gc.get_function(name);
 }
-const TypeT* Context::get_variable(const std::string &name) const {
-	auto it = variables.find(name);
+void Context::declare_variable(const std::string &name, const TypeT &type) {
+	VarStack &vStack = variables[name];
+	assert((vStack.st.empty()) || (vStack.st.top().indent < curIndent));
+	assert(gc.get_function(name) == nullptr);
 
-	if (it != variables.end()) {
-		return &it->second;
-	} else {
-		return gc.get_variable(name);
+	VarData data(type, get_c_name(name, vStack.nextId++));
+	if (curIndent > 0) {
+		declarations.push_back(data);
+	}
+
+	vStack.st.push(VarInst(std::move(data), curIndent));
+	jointSt.push({curIndent, name});
+
+}
+void Context::update_indent(uint32_t indent) {
+	curIndent = indent;
+	while ((!jointSt.empty()) && (jointSt.top().first > curIndent)) {
+		variables[jointSt.top().second].st.pop();
+		jointSt.pop();
 	}
 }
-void Context::generate_c(std::ostream &out) const {
-	for (const auto &i : variables) {
-		out << "    " << i.second.get_c_name() << " " << i.first << ";\n";
+const VarData* Context::get_variable(const std::string &name) const {
+	auto it = variables.find(name);
+	if (it == variables.end()) {
+		return gc.get_variable(name);
 	}
+	const VarStack &vStack = it->second;
+	if (vStack.st.empty()) {
+		return gc.get_variable(name);
+	}
+	return &vStack.st.top().var;
+}
+std::vector<VarData> Context::get_declarations() {
+	return std::move(declarations);
 }

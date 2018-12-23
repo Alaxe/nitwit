@@ -1,4 +1,5 @@
 #include "function.h"
+#include "prim-type-data.h"
 
 #include <cassert>
 #include <iostream>
@@ -7,28 +8,50 @@ Function::Function(
 	std::vector<Line>::const_iterator begin,
 	std::vector<Line>::const_iterator end,
 	const GlobalContext &globalContext
-): proto(*begin), context(globalContext) {
+): proto(*begin) {
+	Context context(globalContext);
 
-	for (const auto &i : proto.args) {
-		std::cerr << "arg " << i.second << " " << i.first.name << "\n";
-		//assert(i.first.cat == TypeT::Category::Primitive);
+	for (auto &i : proto.args) {
 		context.declare_variable(i.second, i.first);
+		i.second = context.get_variable(i.second)->name;
 	}
 
-	bool bodyStarted = false;
 	for (auto lineIt = begin + 1;lineIt != end;lineIt++) {
-		auto tok = lineIt[0].tokens;
-		std::cerr << "cur line\n" << *lineIt << "\n";
+		auto tok = lineIt->tokens;
+		context.update_indent(lineIt->indent);
 		if (tok[0].type == TokenType::DefVar) {
-			assert(tok.size() == 3);
-			assert(!bodyStarted);
+			assert(tok.size() >= 3);
 
-			std::unique_ptr<VarDefAST> ptr(
-				new VarDefAST(tok[1], tok[2])
+			assert(tok[1].type == TokenType::Identifier);
+			assert(tok[2].type == TokenType::Identifier);
+
+			assert(tok[1].s != "void");
+			assert(PrimTypeData::get(tok[1].s));
+
+			TypeT type = TypeT(
+				TypeT::Category::Primitive,
+				tok[1].s
 			);
 
-			ptr->add_to_context(context);
-			statements.push_back(std::move(ptr));
+			ExprAST::Stack st;
+			if (tok.size() > 3) {
+				st = ExprAST::parse(
+					tok.begin() + 3,
+					tok.end(),
+					context
+				);
+				assert(st.size() == 1);
+			} else {
+				Token tok;
+				tok.type = TokenType::LitInt;
+				tok.s = "0";
+				st.emplace_back(new LitAST(tok));
+			}
+
+			context.declare_variable(tok[2].s, type);
+			st.emplace_back(new IdentifierAST(tok[2], context));
+
+			statements.emplace_back(new AssignmentAST(st));
 		} else if (tok[0].type == TokenType::Return) {
 			if (proto.returnT.cat == TypeT::Category::Void) {
 				assert(tok.size() == 1);
@@ -50,7 +73,6 @@ Function::Function(
 			);
 
 			statements.push_back(std::move(ptr));
-			bodyStarted = true;
 		} else {
 			auto expr = ExprAST::parse(
 				tok.begin(),
@@ -65,18 +87,20 @@ Function::Function(
 				);
 				statements.push_back(std::move(ptr));
 			}
-
-			bodyStarted = true;
 		}
 		//statements.back()->debug_print();
 		//std::cerr << "-----------------" << std::endl;
 	}
+	declarations = context.get_declarations();
 }
 
 void Function::generate_c(std::ostream &out) const {
 	proto.generate_c(out);
 	out << " {\n";
-	context.generate_c(out);
+	for (const VarData &i : declarations) {
+		out << "    ";
+		i.generate_c(out);
+	}
 
 	for (const auto &i : statements) {
 		i->generate_c(out);

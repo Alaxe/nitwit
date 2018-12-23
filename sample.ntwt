@@ -21,9 +21,9 @@ $@ int main
     ;= b 3.353.3523
 
     @print_num 5
-    << + 2 << + 2 3 @print_ans 
+    << + 2 << + 2 3 @print_ans
 
-    = a \\ b 5
+    ;= a \\ b 5
     >> a >> b
     << + a b
     = a @sum a \

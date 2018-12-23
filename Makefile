@@ -5,7 +5,7 @@ OBJECTS = $(patsubst src/%.cpp,obj/%.o,$(wildcard src/*.cpp))
 all: run
 
 run: nitwit
-	./nitwit
+	@./nitwit
 
 obj/%.o: src/%.cpp
 	@mkdir -p obj

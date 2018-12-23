@@ -6,15 +6,14 @@
 #include <vector>
 
 #include "ast.h"
+#include "context.h"
 #include "function-t.h"
 
 class Function {
 private:
+	std::vector<VarData> declarations;
 	std::vector<std::unique_ptr<StatementAST>> statements;
 	FunctionT proto;
-
-	Context context; //shouldn't keep a context here, but just the declared variables
-	//this way we won't be risking dangling references
 
 public:
 	Function(

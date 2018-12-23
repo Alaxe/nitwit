@@ -86,15 +86,16 @@ void LitAST::generate_expr(std::ostream &out) const {
 	out << val;
 }
 
-IdentifierAST::IdentifierAST(const Token &t, const Context &context):
-	name(t.s) {
+IdentifierAST::IdentifierAST(const Token &t, const Context &context) {
 
-	const TypeT *typePtr = context.get_variable(t.s);
-	if (typePtr == nullptr) {
+	const VarData *varData = context.get_variable(t.s);
+	if (varData == nullptr) {
 		resultT.cat = ResultT::Category::Identifier;
+		name = t.s;
 	} else {
 		resultT.cat = ResultT::Category::LValue;
-		resultT.t = *typePtr;
+		resultT.t = varData->type;
+		name = varData->name;
 	}
 }
 const std::string& IdentifierAST::get_name() const {
@@ -132,6 +133,14 @@ BinOperatorAST::BinOperatorAST(const OperatorData *oprData,
 	assert(rRes.is_value());
 	assert(rRes.t.cat == TypeT::Category::Primitive);
 	assert(lRes.t.cat == TypeT::Category::Primitive);
+
+	const PrimTypeData *lResData = PrimTypeData::get(lRes.t.name);
+	const PrimTypeData *rResData = PrimTypeData::get(rRes.t.name);
+
+	if (!oprData->takeFloat) {
+		assert(!lResData->isFloat);
+		assert(!rResData->isFloat);
+	}
 
 	resultT.cat = ResultT::Category::RValue;
 	resultT.t.cat = TypeT::Category::Primitive;
@@ -295,40 +304,16 @@ void OutputAST::generate_expr(std::ostream &out) const {
 }
 
 void OutputAST::generate_default_c(std::ostream &out) {
-	//out << "int out_int(int a) {\n";
-	//out << "    printf(\"%i\\n\", a);\n";
-	//out << "    return a;\n";
-	//out << "}\n";
 	for (const auto &i : PrimTypeData::get_all()) {
 		const PrimTypeData &d = i.second;
 		out << d.cName << " out_" << d.name;
 		out << "(" << d.cName << " a) {\n";
-		out << "    printf(\"%\" " << d.printfMacro << ", a);\n";
+		out << "    printf(\"%\" " << d.printfMacro;
+		out << " \"\\n\", a);\n";
 		out << "    return a;\n";
 		out << "}\n";
 	}
 
-}
-
-VarDefAST::VarDefAST(const Token &typeTok, const Token &nameTok) {
-	assert(typeTok.type == TokenType::Identifier);
-	assert(nameTok.type == TokenType::Identifier);
-
-	assert(typeTok.s != "void");
-	assert(PrimTypeData::get(typeTok.s));
-	type = TypeT(TypeT::Category::Primitive, typeTok.s);
-
-	name = nameTok.s;
-}
-void VarDefAST::add_to_context(Context &context) {
-	//std::cerr << "registering " << name << " " << type.name << std::endl;
-	context.declare_variable(name, type);
-}
-void VarDefAST::debug_print() const {
-	std::cerr << "vardef (no type data) " << name << "\n";
-}
-void VarDefAST::generate_c(std::ostream &out) const {
-	out << "    " << name << " = 0;\n";
 }
 
 ReturnAST::ReturnAST(std::unique_ptr<ExprAST> val): returnVal(std::move(val)) {}
