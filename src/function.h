@@ -12,7 +12,7 @@
 class Function {
 private:
 	std::vector<VarData> declarations;
-	std::vector<std::unique_ptr<StatementAST>> statements;
+	std::unique_ptr<StatementAST> body;
 	FunctionT proto;
 
 public:

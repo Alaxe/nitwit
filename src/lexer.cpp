@@ -225,8 +225,12 @@ std::vector<Line> Line::split_stream(std::istream &in) {
 		cur.s.push_back(c);
 		if (isspace(c)) {
 			if (!nonSpace) {
-				cur.indent++;
-			} 
+				if (c == '\t') {
+					cur.indent += 4;
+				} else {
+					cun.indent++;
+				}
+			}
 		} else {
 			nonSpace = true;
 		}

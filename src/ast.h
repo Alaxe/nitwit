@@ -139,3 +139,33 @@ public:
 	virtual void debug_print() const;
 	virtual void generate_c(std::ostream &out) const;
 };
+
+class BlockAST : public StatementAST {
+private:
+	uint32_t indent;
+	std::vector<std::unique_ptr<StatementAST>> statements;
+public:
+	BlockAST(
+		uint32_t indent,
+		std::vector<Line>::const_iterator &begin,
+		std::vector<Line>::const_iterator end,
+		Context &context,
+		const FunctionT &func
+	);
+	void debug_print() const;
+	void generate_c(std::ostream &out) const;
+};
+
+class IfAST : public StatementAST {
+private:
+	std::unique_ptr<ExprAST> condition;
+	std::unique_ptr<StatementAST> ifBody;
+	std::unique_ptr<StatementAST> elseBody;
+public:
+	IfAST(std::unique_ptr<ExprAST> condition);
+
+	void attach_if_body(std::unique_ptr<ExprAST> body);
+	void attach_else_body(std::unique_ptr<ExprAST> body);
+
+	void generate_c(std::ostream &out) const;
+};

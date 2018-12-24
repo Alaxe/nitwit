@@ -1,7 +1,7 @@
-;$ #int tes1 % #int
 $ int test
 
 $@ int sum int a int b
+    $ real a 5
     => + a b
 
 $@ void print_ans
@@ -13,20 +13,9 @@ $@ int print_num int a
 ;$@ # #int tractor #kon b par c #din ko
 
 $@ int main
-    $ int a
-    $ real b ; this is commented
-    = a 3
-    = b 4.25
-    = b .23254
-    ;= b 3.353.3523
-
-    @print_num 5
-    << + 2 << + 2 3 @print_ans
-
-    ;= a \\ b 5
-    >> a >> b
-    << + a b
-    = a @sum a \
-        b
+    $ int a 1
+            $ float a 0.5
+            << a
+        $ float a 3
+        << a
     << a
-    => 0

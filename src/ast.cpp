@@ -17,7 +17,6 @@ const ResultT& ExprAST::get_result_t() {
 	return resultT;
 }
 void ExprAST::generate_c(std::ostream &out) const {
-	out << "    ";
 	generate_expr(out);
 	out << ";\n";
 }
@@ -324,7 +323,116 @@ void ReturnAST::debug_print() const {
 	std::cerr << ")\n";
 }
 void ReturnAST::generate_c(std::ostream &out) const {
-	out << "    return ";
+	out << "return ";
 	returnVal->generate_expr(out);
 	out << ";\n";
+}
+
+BlockAST::BlockAST(
+	uint32_t indent,
+	std::vector<Line>::const_iterator& begin,
+	std::vector<Line>::const_iterator end,
+	Context &context,
+	const FunctionT &func
+): indent(indent) {
+	context.update_indent(indent);
+	while (begin != end) {
+		const auto &tok = begin->tokens;
+		if (begin->indent < indent) {
+			break;
+		} else if (begin->indent > indent) {
+			statements.emplace_back(new BlockAST(
+				begin->indent,
+				begin,
+				end,
+				context,
+				func
+			));
+			context.update_indent(indent);
+			continue;
+		}
+		if (tok[0].type == TokenType::DefVar) {
+			assert(tok.size() >= 3);
+
+			assert(tok[1].type == TokenType::Identifier);
+			assert(tok[2].type == TokenType::Identifier);
+
+
+			assert(tok[1].s != "void");
+			assert(PrimTypeData::get(tok[1].s));
+
+			TypeT type = TypeT(
+				TypeT::Category::Primitive,
+				tok[1].s
+			);
+
+			ExprAST::Stack st;
+			if (tok.size() > 3) {
+				st = ExprAST::parse(
+					tok.begin() + 3,
+					tok.end(),
+					context
+				);
+				assert(st.size() == 1);
+			} else {
+				Token tok;
+				tok.type = TokenType::LitInt;
+				tok.s = "0";
+				st.emplace_back(new LitAST(tok));
+			}
+
+			context.declare_variable(tok[2].s, type);
+			st.emplace_back(new IdentifierAST(tok[2], context));
+
+			statements.emplace_back(new AssignmentAST(st));
+			begin++;
+		} else if (tok[0].type == TokenType::Return) {
+			if (func.returnT.cat == TypeT::Category::Void) {
+				assert(tok.size() == 1);
+				continue;
+			}
+			auto expr = ExprAST::parse(
+				tok.begin() + 1,
+				tok.end(),
+				context
+			);
+
+			assert(expr.size() == 1);
+			const ResultT &retT = expr[0]->get_result_t();
+			assert(retT.is_value());
+			assert(retT.t.cat == TypeT::Category::Primitive);
+
+			std::unique_ptr<ReturnAST> ptr(
+				new ReturnAST(std::move(expr[0]))
+			);
+
+			statements.push_back(std::move(ptr));
+			begin++;
+		} else {
+			auto expr = ExprAST::parse(
+				tok.begin(),
+				tok.end(),
+				context
+			);
+
+			for (auto &i : expr) {
+				assert(i->get_result_t().is_value());
+				std::unique_ptr<StatementAST> ptr(
+					static_cast<StatementAST*>(i.release())
+				);
+				statements.push_back(std::move(ptr));
+			}
+			begin++;
+		}
+	}
+}
+
+void BlockAST::debug_print() const {}
+void BlockAST::generate_c(std::ostream &out) const {
+	for (const auto &i : statements) { 
+		if (dynamic_cast<BlockAST*>(i.get()) == nullptr) {
+			out << std::string(indent, ' ');
+		}
+		i->generate_c(out);
+	}
 }
