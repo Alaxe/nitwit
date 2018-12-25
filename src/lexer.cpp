@@ -4,7 +4,7 @@
 
 Token::Token(uint32_t charInd): type(TokenType::Unknown), charInd(charInd) {}
 
-const char OPERATOR_CHARSET[] = "~!@#$%^&*(){}[]?+\\|`-:<=>";
+const char OPERATOR_CHARSET[] = "~!@#$%^&*(){}[]?+\\/|`-:<=>";
 inline bool is_identifier_start(char c) {
 	return isalpha(c);
 }

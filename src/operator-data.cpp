@@ -15,12 +15,12 @@ void OperatorData::init_if_needed() {
 	operators.emplace("-", OperatorData("-", 2, true, "-"));
 	operators.emplace("*", OperatorData("*", 2, true, "*"));
 	operators.emplace("/", OperatorData("/", 2, true, "/"));
-	operators.emplace("\\\\", OperatorData("\\\\", 2, false, "%"));
-	
-	operators.emplace("==", OperatorData("==", 2, true, "=="));
-	operators.emplace("!=", OperatorData("!=", 2, true, "!="));
-	operators.emplace(">=", OperatorData(">=", 2, true, ">="));
-	operators.emplace("<=", OperatorData("<=", 2, true, "<="));
+	operators.emplace("//", OperatorData("//", 2, false, "%"));
+
+	operators.emplace("==", OperatorData("==", 2, false, "=="));
+	operators.emplace("!=", OperatorData("!=", 2, false, "!="));
+	operators.emplace(">=", OperatorData(">=", 2, false, ">="));
+	operators.emplace("<=", OperatorData("<=", 2, false, "<="));
 	operators.emplace(">", OperatorData(">", 2, true, ">"));
 	operators.emplace("<", OperatorData("<", 2, true, "<"));
 
@@ -33,7 +33,8 @@ const OperatorData* OperatorData::get(const std::string &name) {
 
 	auto it = operators.find(name);
 	if (it != operators.end()) {
-		return &it->second; //fine as once the map is constructed, it isn't modified
+		return &it->second;
+		//fine as once the map is constructed, it isn't modified
 	} else {
 		return nullptr;
 	}
