@@ -1,5 +1,3 @@
-$ int test
-
 $@ int sum int a int b
     $ real a 5
     => + a b
@@ -12,10 +10,31 @@ $@ int print_num int a
 
 ;$@ # #int tractor #kon b par c #din ko
 
-$@ int main
+
+$@ void test
     $ int a 1
-            $ float a 0.5
-            << a
-        $ float a 3
-        << a
-    << a
+    $ int b 1
+    $ int c 1
+    ? a
+        << 5
+        ? c
+            << 6
+    !? b
+        << 6
+        ? a
+        !
+            << 3
+    !
+        << 8
+
+$@ int64 fact int a
+    ? a
+        => * a @fact - a 1
+    :
+        => 1
+
+
+$@ int main
+    $ int a
+    >> a
+    << @ fact a

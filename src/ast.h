@@ -13,6 +13,7 @@ public:
 	virtual ~StatementAST();
 	virtual void debug_print() const = 0;
 	virtual void generate_c(std::ostream &out) const = 0;
+	virtual void generate_c(std::ostream &out, uint32_t indent) const;
 };
 
 class ResultT {
@@ -44,6 +45,10 @@ public:
 	static std::vector<std::unique_ptr<ExprAST>> parse(
 		std::vector<Token>::const_iterator begin,
 		std::vector<Token>::const_iterator end,
+		const Context &context
+	);
+	static std::unique_ptr<ExprAST> parse_condition(
+		const std::vector<Token> &tok,
 		const Context &context
 	);
 };
@@ -142,11 +147,11 @@ public:
 
 class BlockAST : public StatementAST {
 private:
-	uint32_t indent;
+	uint32_t blIndent;
 	std::vector<std::unique_ptr<StatementAST>> statements;
 public:
 	BlockAST(
-		uint32_t indent,
+		uint32_t blIndent,
 		std::vector<Line>::const_iterator &begin,
 		std::vector<Line>::const_iterator end,
 		Context &context,
@@ -154,18 +159,23 @@ public:
 	);
 	void debug_print() const;
 	void generate_c(std::ostream &out) const;
+	void generate_c(std::ostream &out, uint32_t indent) const;
 };
 
 class IfAST : public StatementAST {
+public:
+	typedef std::pair<
+		std::unique_ptr<ExprAST>,
+		std::unique_ptr<StatementAST>
+	> IfPair;
 private:
-	std::unique_ptr<ExprAST> condition;
-	std::unique_ptr<StatementAST> ifBody;
+	std::vector<IfPair> ifPairs;
 	std::unique_ptr<StatementAST> elseBody;
 public:
-	IfAST(std::unique_ptr<ExprAST> condition);
-
-	void attach_if_body(std::unique_ptr<ExprAST> body);
-	void attach_else_body(std::unique_ptr<ExprAST> body);
+	void attach_if(IfPair p);
+	void attach_else_body(std::unique_ptr<StatementAST> body);
 
 	void generate_c(std::ostream &out) const;
+	void generate_c(std::ostream &out, uint32_t indent) const;
+	void debug_print() const;
 };

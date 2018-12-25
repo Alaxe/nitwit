@@ -172,7 +172,14 @@ std::vector<Token> Token::tokenize(const std::string &s) {
 				cur.type = TokenType::DefVar;
 			} else if (cur.s == "$@") {
 				cur.type = TokenType::DefFunc;
+			} else if (cur.s == "?") {
+				cur.type = TokenType::If;
+			} else if (cur.s == "!?") {
+				cur.type = TokenType::Elif;
+			} else if (cur.s == "!") {
+				cur.type = TokenType::Else;
 			}
+
 			ans.push_back(cur);
 		}
 	}
@@ -228,7 +235,7 @@ std::vector<Line> Line::split_stream(std::istream &in) {
 				if (c == '\t') {
 					cur.indent += 4;
 				} else {
-					cun.indent++;
+					cur.indent++;
 				}
 			}
 		} else {

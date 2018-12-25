@@ -12,6 +12,10 @@ bool ResultT::is_value() const {
 }
 
 StatementAST::~StatementAST() {}
+void StatementAST::generate_c(std::ostream &out, uint32_t indent) const {
+	out << std::string(indent, ' ');
+	generate_c(out);
+}
 
 const ResultT& ExprAST::get_result_t() {
 	return resultT;
@@ -60,6 +64,23 @@ std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 
 	std::reverse(stack.begin(), stack.end());
 	return stack;
+}
+std::unique_ptr<ExprAST> ExprAST::parse_condition(
+	const std::vector<Token> &tok,
+	const Context &context
+) {
+	auto exprList = ExprAST::parse(
+		tok.begin() + 1,
+		tok.end(),
+		context
+	);
+	assert(exprList.size() == 1);
+	const ResultT &t = exprList[0]->get_result_t();
+	assert(t.is_value());
+	assert(t.t.cat == TypeT::Category::Primitive);
+	assert(PrimTypeData::get(t.t.name)->isFloat == false);
+
+	return std::move(exprList[0]);
 }
 
 LitAST::LitAST(const Token &t): val(t.s) {
@@ -329,18 +350,18 @@ void ReturnAST::generate_c(std::ostream &out) const {
 }
 
 BlockAST::BlockAST(
-	uint32_t indent,
+	uint32_t blIndent,
 	std::vector<Line>::const_iterator& begin,
 	std::vector<Line>::const_iterator end,
 	Context &context,
 	const FunctionT &func
-): indent(indent) {
-	context.update_indent(indent);
+): blIndent(blIndent) {
+	context.update_indent(blIndent);
 	while (begin != end) {
 		const auto &tok = begin->tokens;
-		if (begin->indent < indent) {
+		if (begin->indent < blIndent) {
 			break;
-		} else if (begin->indent > indent) {
+		} else if (begin->indent > blIndent) {
 			statements.emplace_back(new BlockAST(
 				begin->indent,
 				begin,
@@ -348,10 +369,58 @@ BlockAST::BlockAST(
 				context,
 				func
 			));
-			context.update_indent(indent);
+			context.update_indent(blIndent);
 			continue;
 		}
-		if (tok[0].type == TokenType::DefVar) {
+		if (tok[0].type == TokenType::If) {
+			auto ifAst = std::unique_ptr<IfAST>(new IfAST());
+
+			TokenType nextIf = TokenType::If;
+
+			while ((begin != end) && (begin->indent == blIndent)) {
+				const auto &tok = begin->tokens;
+				std::unique_ptr<BlockAST> body;
+
+				if (
+					(tok[0].type == nextIf)
+					|| (tok[0].type == TokenType::Else)
+				) {
+					BlockAST *b = new BlockAST(
+						blIndent + 1,
+						++begin,
+						end,
+						context,
+						func
+					);
+					body = std::unique_ptr<BlockAST>(b);
+				}
+
+				if (tok[0].type == nextIf) {
+					auto cond = ExprAST::parse_condition(
+						tok,
+						context
+					);
+					ifAst->attach_if({
+						std::move(cond), 
+						std::move(body)
+					});
+
+					nextIf = TokenType::Elif;
+				} else if (tok[0].type == TokenType::Else) {
+					ifAst->attach_else_body(std::move(body));
+					break;
+				} else {
+					break;
+				}
+			}
+
+			statements.push_back(std::move(ifAst));
+		} else if (
+			(tok[0].type == TokenType::Else)
+			|| (tok[0].type == TokenType::Elif)
+		) {
+			assert(false);
+		} else if (tok[0].type == TokenType::DefVar) {
 			assert(tok.size() >= 3);
 
 			assert(tok[1].type == TokenType::Identifier);
@@ -428,11 +497,45 @@ BlockAST::BlockAST(
 }
 
 void BlockAST::debug_print() const {}
+void BlockAST::generate_c(std::ostream &out, uint32_t indent) const {
+	generate_c(out);
+}
 void BlockAST::generate_c(std::ostream &out) const {
 	for (const auto &i : statements) { 
-		if (dynamic_cast<BlockAST*>(i.get()) == nullptr) {
-			out << std::string(indent, ' ');
-		}
-		i->generate_c(out);
+		i->generate_c(out, blIndent);
 	}
+}
+
+
+void IfAST::debug_print() const {}
+
+void IfAST::attach_if(IfPair p) {
+	ifPairs.push_back(std::move(p));
+}
+void IfAST::attach_else_body(std::unique_ptr<StatementAST> body) {
+	elseBody = std::move(body);
+}
+
+void IfAST::generate_c(std::ostream &out) const {
+	generate_c(out, 0);
+}
+void IfAST::generate_c(std::ostream &out, uint32_t indent) const {
+	std::string indentS = std::string(indent, ' ');
+	bool first = true;
+	for (const IfPair &p : ifPairs) {
+		out << (first ? indentS : " else ");
+		out << "if (";
+		p.first->generate_expr(out);
+		out << ") {\n";
+		p.second->generate_c(out);
+		out << indentS << "}";
+
+		first = false;
+	}
+	if (elseBody) {
+		out << " else {\n";
+		elseBody->generate_c(out);
+		out << indentS << "}";
+	}
+	out << "\n";
 }
