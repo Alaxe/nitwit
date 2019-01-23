@@ -41,7 +41,7 @@ std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 			stack.emplace_back(new IdentifierAST(tok, context));
 			break;
 		default:
-			assert(tok.type == TokenType::Operator);
+			assert(tok.type & TokenType::Operator);
 			const OperatorData* oprData = OperatorData::get(tok.s);
 
 			if (oprData != nullptr) {
@@ -420,7 +420,7 @@ BlockAST::BlockAST(
 			|| (tok[0].type == TokenType::Elif)
 		) {
 			assert(false);
-		} else if (tok[0].type == TokenType::DefVar) {
+		} else if (tok[0].type == TokenType::VarDef) {
 			assert(tok.size() >= 3);
 
 			assert(tok[1].type == TokenType::Identifier);
@@ -501,7 +501,7 @@ void BlockAST::generate_c(std::ostream &out, uint32_t indent) const {
 	generate_c(out);
 }
 void BlockAST::generate_c(std::ostream &out) const {
-	for (const auto &i : statements) { 
+	for (const auto &i : statements) {
 		i->generate_c(out, blIndent);
 	}
 }

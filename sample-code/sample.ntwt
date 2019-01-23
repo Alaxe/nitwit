@@ -12,7 +12,7 @@ $@ void factor int num int curD
         ? > num 1
             << num
     !
-        @factor num + 1 curD
+        @factor num + curD 1
 
 $@ int main
     $ int a

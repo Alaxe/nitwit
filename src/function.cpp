@@ -43,10 +43,10 @@ std::vector<Function> Function::parse_all(
 	std::vector<Function> functions;
 	for (uint32_t i = 0;i < code.size();i++) {
 		assert(code[i].indent == 0);
-		if (code[i].tokens[0].type == TokenType::DefVar) {
+		if (code[i].tokens[0].type == TokenType::VarDef) {
 			continue;
 		}
-		assert(code[i].tokens[0].type == TokenType::DefFunc);
+		assert(code[i].tokens[0].type == TokenType::FuncDef);
 		uint32_t j;
 		for (j = i + 1;j < code.size();j++) {
 			if (code[j].indent == 0) {

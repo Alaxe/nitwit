@@ -49,9 +49,9 @@ GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 			continue;
 		}
 		const TokenType &tt = l.tokens[0].type;
-		if (tt == TokenType::DefFunc) {
+		if (tt == TokenType::FuncDef) {
 			parse_func_declaration(l);
-		} else if ((tt == TokenType::DefVar) || (tt == TokenType::DefWeak)) {
+		} else if (tt == TokenType::VarDef) {
 			parse_var_declaration(l);
 		}
 	}

@@ -1,0 +1,37 @@
+$: Vertex
+    $ #Vertex edges
+    $ uint dist
+
+
+$@ #Vertex read_graph
+    $ int vCnt
+    $ int eCnt
+
+    >> vCnt >> eCnt
+
+    $ #int e1 % #int eCnt
+    $ #int e2 % #int eCnt
+    $ #int adjCnt % #int vCnt
+
+    $ int i 0
+    [] < i eCnt
+        >> #i e1 >> #i e2
+        = #e1 i - #e1 i 1
+        = #e2 i - #e2 i 1
+        = #adjCnt e1 + #adjCnt e1 1
+        = #adjCnt e2 + #adjCnt e2 1
+        = i + i 1
+
+    $ #Vertex graph % #Vertex vCnt
+    = i 0
+    [] < i vCnt
+        = :# graph i edges % #Vertex #adjCnt i
+        = i + i 1
+
+    = i 0
+    [] < i eCnt
+        = #adjCnt #e1 i - #ajdCnt #e1 i 1
+        = #:# graph #e1 i edges #adjCnt #e1 i #graph #e2 i
+
+        = #adjCnt #e2 i - #adjCnt #e2 i 1
+        = #:#graph #e2 i edges #adjCnt #e2 i #graph #e1 i
