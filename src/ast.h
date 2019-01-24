@@ -85,8 +85,6 @@ protected:
 	const OperatorData *oprData;
 	std::unique_ptr<ExprAST> lhs, rhs;
 
-
-
 public:
 	BinOperatorAST(const OperatorData *oprData, ExprAST::Stack &stack);
 	virtual void debug_print() const;

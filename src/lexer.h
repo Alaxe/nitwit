@@ -69,6 +69,13 @@ public:
 	static TokenType type_from_string(const std::string &s);
 	operator uint32_t () const;
 };
+namespace std {
+	template <>
+	struct hash<TokenType> {
+		std::size_t operator()(const TokenType& t) const;
+	};
+}
+
 
 class Token {
 public:

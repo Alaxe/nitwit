@@ -3,20 +3,36 @@
 #include <string>
 #include <unordered_map>
 
+#include "lexer.h"
+
 class OperatorData {
 public:
-	std::string name;
-	uint32_t arity;
+	TokenType type;
 	bool takeFloat;
-	std::string cName;
+	bool resCommon;
+
+	std::string cPrefix;
+	std::string cInfix;
+	std::string cSuffix;
 
 private:
-	static std::unordered_map<std::string, OperatorData> operators;
 
-	OperatorData(const std::string &name, uint32_t arity, bool takeFloat,
-		const std::string &cName);
+	OperatorData(
+		TokenType type,
+		bool takeFloat,
+		bool resCommon,
+		const std::string &cInfix
+	);
+	OperatorData(
+		TokenType type,
+		bool takeFloat,
+		bool resCommon,
+		const std::string &cPrefix,
+		const std::string &cInfix,
+		const std::string &CSuffix
+	);
 
-	static void init_if_needed();
+	static std::unordered_map<TokenType, OperatorData> operators;
 public:
-	static const OperatorData* get(const std::string &name);
+	static const OperatorData* get(const TokenType &t);
 };

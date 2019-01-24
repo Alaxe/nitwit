@@ -1,40 +1,46 @@
 #include "operator-data.h"
 
-std::unordered_map<std::string, OperatorData> OperatorData::operators;
 
-OperatorData::OperatorData(const std::string &name, uint32_t arity,
-	bool takeFloat, const std::string &cName):
-	name(name), arity(arity), takeFloat(takeFloat), cName(cName) {}
+OperatorData::OperatorData(
+	TokenType type,
+	bool takeFloat,
+	bool resCommon,
+	const std::string &cInfix
+): type(type), takeFloat(takeFloat), resCommon(resCommon), cInfix(cInfix) {}
 
+OperatorData::OperatorData(
+	TokenType type,
+	bool takeFloat,
+	bool resCommon,
+	const std::string &cPrefix,
+	const std::string &cInfix,
+	const std::string &cSuffix
+): type(type), takeFloat(takeFloat), resCommon(resCommon), cPrefix(cPrefix),
+	cInfix(cInfix), cSuffix(cSuffix) {}
 
-void OperatorData::init_if_needed() {
-	if (!operators.empty()) {
-		return;
-	}
-	operators.emplace("+", OperatorData("+", 2, true, "+"));
-	operators.emplace("-", OperatorData("-", 2, true, "-"));
-	operators.emplace("*", OperatorData("*", 2, true, "*"));
-	operators.emplace("/", OperatorData("/", 2, true, "/"));
-	operators.emplace("//", OperatorData("//", 2, false, "%"));
+std::unordered_map<TokenType, OperatorData> OperatorData::operators = {
+	{TokenType::Plus, {TokenType::Plus, true, true, "+"}},
+	{TokenType::Minus, {TokenType::Minus, true, true, "-"}},
+	{TokenType::Times, {TokenType::Times, true, true, "*"}},
+	{TokenType::Divide, {TokenType::Divide, true, true, "/"}},
+	{TokenType::Remainder, {TokenType::Remainder, false, true, "//"}},
 
-	operators.emplace("==", OperatorData("==", 2, false, "=="));
-	operators.emplace("!=", OperatorData("!=", 2, false, "!="));
-	operators.emplace(">=", OperatorData(">=", 2, false, ">="));
-	operators.emplace("<=", OperatorData("<=", 2, false, "<="));
-	operators.emplace(">", OperatorData(">", 2, true, ">"));
-	operators.emplace("<", OperatorData("<", 2, true, "<"));
+	{TokenType::Less, {TokenType::Less, true, false, "<"}},
+	{TokenType::Greater, {TokenType::Greater, true, false, ">"}},
+	{TokenType::LessEq, {TokenType::LessEq, false, false, "<="}},
+	{TokenType::GreatEq, {TokenType::GreatEq, false, false, ">="}},
 
-	operators.emplace("&", OperatorData("&", 2, false, "&&"));
-	operators.emplace("|", OperatorData("|", 2, false, "||"));
-	operators.emplace("~", OperatorData("~", 1, false, "!"));
-}
-const OperatorData* OperatorData::get(const std::string &name) {
-	init_if_needed();
+	{TokenType::And, {TokenType::And, false, false, "&"}},
+	{TokenType::Or, {TokenType::Or, false, false, "|"}},
+	{TokenType::Xor, {TokenType::Xor, false, false, "!", "!=", "!"}},
+	{TokenType::Not, {TokenType::Not, false, false, "~"}},
 
-	auto it = operators.find(name);
+};
+
+const OperatorData* OperatorData::get(const TokenType &t) {
+	auto it = operators.find(t);
 	if (it != operators.end()) {
 		return &it->second;
-		//fine as once the map is constructed, it isn't modified
 	} else {
 		return nullptr;
 	}

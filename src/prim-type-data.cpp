@@ -7,10 +7,10 @@ PrimTypeData::PrimTypeData(
 	const std::string &cName,
 	const std::string &scanfMacro,
 	const std::string &printfMacro
-): 
+):
 	name(name),
 	isFloat(isFloat),
-	castIndex(castIndex), 
+	castIndex(castIndex),
 	cName(cName),
 	scanfMacro(scanfMacro),
 	printfMacro(printfMacro)

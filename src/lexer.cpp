@@ -56,6 +56,10 @@ TokenType::operator uint32_t () const {
 	return val;
 }
 
+std::size_t std::hash<TokenType>::operator()(const TokenType& t) const {
+	return std::hash<uint32_t>()(t.val);
+}
+
 Token::Token(uint32_t startInd):
 	type(TokenType::Unknown),
 	startInd(startInd),
