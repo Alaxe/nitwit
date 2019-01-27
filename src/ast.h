@@ -153,7 +153,7 @@ public:
 		std::vector<Line>::const_iterator &begin,
 		std::vector<Line>::const_iterator end,
 		Context &context,
-		const FunctionT &func
+		const FunctionData &func
 	);
 	void debug_print() const;
 	void generate_c(std::ostream &out) const;

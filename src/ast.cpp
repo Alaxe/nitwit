@@ -200,11 +200,11 @@ FunctionCallAST::FunctionCallAST(const Context &context,
 	funcName = funcIdent->get_name();
 
 
-	const FunctionT *funcT = context.get_function(funcName);
-	assert(funcT != nullptr);
-	assert(funcT->args.size() <= stack.size());
+	const FunctionData *func = context.get_function(funcName);
+	assert(func != nullptr);
+	assert(func->args.size() <= stack.size());
 
-	for (uint32_t i = 0;i < funcT->args.size();i++) {
+	for (uint32_t i = 0;i < func->args.size();i++) {
 		const ResultT &argT = stack.back()->get_result_t();
 		assert(argT.is_value());
 		assert(argT.t.cat == TypeT::Category::Primitive);
@@ -214,7 +214,7 @@ FunctionCallAST::FunctionCallAST(const Context &context,
 	}
 
 	resultT.cat = ResultT::Category::RValue;
-	resultT.t = funcT->returnT;
+	resultT.t = func->returnT;
 }
 void FunctionCallAST::debug_print() const {
 	std::cerr << "function call " << funcName << " with ";
@@ -354,7 +354,7 @@ BlockAST::BlockAST(
 	std::vector<Line>::const_iterator& begin,
 	std::vector<Line>::const_iterator end,
 	Context &context,
-	const FunctionT &func
+	const FunctionData &func
 ): blIndent(blIndent) {
 	context.update_indent(blIndent);
 	while (begin != end) {

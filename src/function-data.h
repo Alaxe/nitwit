@@ -8,7 +8,7 @@
 #include "lexer.h"
 #include "type-t.h"
 
-class FunctionT {
+class FunctionData {
 public:
 	typedef std::pair<TypeT, std::string> ArgT;
 
@@ -16,12 +16,12 @@ public:
 	std::string name;
 	std::vector<ArgT> args;
 
-	FunctionT();
-	FunctionT(
+	FunctionData();
+	FunctionData(
 		const TypeT &returnT,
 		const std::string &name,
 		const std::vector<ArgT> &args
 	);
-	FunctionT(const Line &l);
+	FunctionData(const Line &l);
 	void generate_c(std::ostream &out) const;
 };

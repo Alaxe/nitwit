@@ -7,13 +7,13 @@
 
 #include "ast.h"
 #include "context.h"
-#include "function-t.h"
+#include "function-data.h"
 
 class Function {
 private:
 	std::vector<VarData> declarations;
 	std::unique_ptr<StatementAST> body;
-	FunctionT proto;
+	FunctionData proto;
 
 public:
 	Function(

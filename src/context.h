@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "function-t.h"
+#include "function-data.h"
 #include "lexer.h"
 #include "type-t.h"
 
@@ -26,6 +26,8 @@ private:
 
 	std::unordered_map<std::string, FunctionT> functions;
 	std::unordered_map<std::string, VarData> variables;
+	//get_type creates array types, which are addded here
+	mutable std::unordered_map<std::string, std::unique_ptr<TypeT*>> types;
 
 	void parse_func_declaration(const Line &l);
 	void parse_var_declaration(const Line &l);
@@ -34,11 +36,15 @@ public:
 	GlobalContext();
 	GlobalContext(const std::vector<Line> &lines);
 
-	void declare_function(const FunctionT &func);
+	void declare_function(const FunctionData &func);
 	void declare_variable(const std::string &name, const TypeT &type);
+	void declare_struct(const std::string &name)
+
+	void declare_struct(const StructData &structData);
 
 	const FunctionT* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
+	const TypeT* get_type(const std::string &name) const;
 
 	void generate_c(std::ostream &out) const;
 };
@@ -70,9 +76,8 @@ private:
 	std::vector<VarData> declarations;
 
 	uint32_t curIndent;
-	const GlobalContext &gc;
 public:
-
+	const GlobalContext &gc;
 
 	Context(const GlobalContext &gc);
 	const FunctionT* get_function(const std::string &name) const;

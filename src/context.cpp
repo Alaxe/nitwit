@@ -37,13 +37,20 @@ void GlobalContext::parse_var_declaration(const Line &l) {
 		nameTok.s,
 		TypeT(TypeT::Category::Primitive, typeTok.s)
 	);
-	//std::cerr << nameTok.s << "\n";
-
-	//std::cerr << "gvar " << l.tokens[2].s << "\n";
 }
 
 GlobalContext::GlobalContext() {}
 GlobalContext::GlobalContext(const std::vector<Line> &lines) {
+	for (const Line &l : lines) {
+		if (l.indent > 0) {
+			continue;
+		}
+		if (l.tokens[0].type == TokenType::StructDef) {
+			assert(l.tokens.size() == 2);
+			assert(l.tokens[1].type == TokenType::Identifier);
+			register_struct(l.tokens[1].s);
+		}
+	}
 	for (const Line &l : lines) {
 		if (l.indent > 0) {
 			continue;

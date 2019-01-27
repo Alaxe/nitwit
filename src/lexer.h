@@ -76,7 +76,6 @@ namespace std {
 	};
 }
 
-
 class Token {
 public:
 	TokenType type;

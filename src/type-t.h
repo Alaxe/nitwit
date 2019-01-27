@@ -1,19 +1,9 @@
 #pragma once
 
-#include <string>
+#include "type-t/array-type.h"
+#include "type-t/base-type-t.h"
+#include "type-t/non-primitive-type.h"
+#include "type-t/primitive-type.h"
+#include "type-t/struct-type.h"
 
-class TypeT {
-public:
-	enum class Category {
-		Void,
-		Primitive,
-		Reference,
-		WReference
-	};
-	Category cat;
-	std::string name;
 
-	TypeT();
-	TypeT(const Category &category, const std::string &name);
-	std::string get_c_name() const;
-};

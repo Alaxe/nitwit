@@ -1,18 +1,18 @@
-#include "function-t.h"
+#include "function-data.h"
 #include "prim-type-data.h"
 
 #include <cassert>
 #include <iostream>
 
-FunctionT::FunctionT() {}
+FunctionData::FunctionData() {}
 
-FunctionT::FunctionT(
+FunctionData::FunctionData(
 	const TypeT &returnT,
 	const std::string &name,
 	const std::vector<ArgT> &args
 ): returnT(returnT), name(name), args(args) {}
 
-FunctionT::FunctionT(const Line &l) {
+FunctionData::FunctionData(const Line &l) {
 	if ((l.tokens.size() < 3) || (l.tokens.size() % 2 == 0)) {
 		std::cerr << "Invalid number of tokens for ";
 		std::cerr << "func def on line ";
@@ -37,7 +37,7 @@ FunctionT::FunctionT(const Line &l) {
 	}
 
 	name = nameTok.s;
-	FunctionT::ArgT curArg;
+	FunctionData::ArgT curArg;
 	for (uint32_t i = 3;i < l.tokens.size();i++) {
 		const Token &t = l.tokens[i];
 
@@ -52,7 +52,7 @@ FunctionT::FunctionT(const Line &l) {
 	}
 }
 
-void FunctionT::generate_c(std::ostream &out) const {
+void FunctionData::generate_c(std::ostream &out) const {
 	out << returnT.get_c_name() << " " << name << "(";
 	if (!args.empty()) {
 		out << args[0].first.get_c_name() << " " << args[0].second;
