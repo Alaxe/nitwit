@@ -90,6 +90,9 @@ std::ostream& operator<< (std::ostream &out, const Token &t);
 
 class Line {
 public:
+	typedef std::vector<Line>::iterator It;
+	typedef std::vector<Line>::const_iterator ConstIt;
+
 	std::string s;
 
 	uint32_t lineInd;

@@ -17,7 +17,7 @@ std::string GlobalContext::get_c_name(const std::string &name) {
 	return "g_" + name;
 }
 void GlobalContext::parse_func_declaration(const Line &l) {
-	declare_function(FunctionT(l));
+	declare_function(FunctionData(l));
 }
 void GlobalContext::parse_var_declaration(const Line &l) {
 	if (l.tokens.size() != 3) {
@@ -37,6 +37,11 @@ void GlobalContext::parse_var_declaration(const Line &l) {
 		nameTok.s,
 		TypeT(TypeT::Category::Primitive, typeTok.s)
 	);
+}
+void GlobalContext::add_primitive_types() {
+	for (const PrimitiveType &i : PrimitiveType::types) {
+		types[i.name] = i;
+	}
 }
 
 GlobalContext::GlobalContext() {}
@@ -64,7 +69,7 @@ GlobalContext::GlobalContext(const std::vector<Line> &lines) {
 	}
 }
 
-void GlobalContext::declare_function(const FunctionT &func) {
+void GlobalContext::declare_function(const FunctionData &func) {
 	assert(get_function(func.name) == nullptr);
 	assert(get_variable(func.name) == nullptr);
 	functions[func.name] = func;
@@ -79,7 +84,7 @@ void GlobalContext::declare_variable(
 
 	variables[name] = VarData(type, get_c_name(name));
 }
-const FunctionT* GlobalContext::get_function(const std::string &name) const {
+const FunctionData* GlobalContext::get_function(const std::string &name) const {
 	auto it = functions.find(name);
 
 	if (it != functions.end()) {
@@ -120,7 +125,7 @@ std::string Context::get_c_name(const std::string &name, const uint32_t &id) {
 }
 
 Context::Context(const GlobalContext &gc): curIndent(0), gc(gc) {}
-const FunctionT* Context::get_function(const std::string &name) const {
+const FunctionData* Context::get_function(const std::string &name) const {
 	return gc.get_function(name);
 }
 void Context::declare_variable(const std::string &name, const TypeT &type) {

@@ -10,9 +10,9 @@
 
 class FunctionData {
 public:
-	typedef std::pair<TypeT, std::string> ArgT;
+	typedef std::pair<const TypeT&, std::string> ArgT;
 
-	TypeT returnT;
+	const TypeT &returnT;
 	std::string name;
 	std::vector<ArgT> args;
 
