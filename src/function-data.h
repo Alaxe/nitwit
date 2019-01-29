@@ -1,9 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <ostream>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "lexer.h"
 #include "type-t.h"
@@ -11,6 +12,7 @@
 class FunctionData {
 public:
 	typedef std::pair<const TypeT&, std::string> ArgT;
+	typedef std::unique_ptr<FunctionData> UPtr;
 
 	const TypeT &returnT;
 	std::string name;
@@ -22,6 +24,6 @@ public:
 		const std::string &name,
 		const std::vector<ArgT> &args
 	);
-	FunctionData(const Line &l);
+
 	void generate_c(std::ostream &out) const;
 };

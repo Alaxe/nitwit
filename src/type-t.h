@@ -5,5 +5,6 @@
 #include "type-t/non-primitive-type.h"
 #include "type-t/primitive-type.h"
 #include "type-t/struct-type.h"
+#include "type-t/void-type.h"
 
 

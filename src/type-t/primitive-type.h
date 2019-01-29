@@ -4,7 +4,7 @@
 
 #include <vector>
 
-class PrimitiveType : TypeT {
+class PrimitiveType : public TypeT {
 public:
 	std::string name;
 	bool isFloat;
@@ -36,10 +36,9 @@ public:
 	std::ostream& c_define_type(std::ostream &s) const override;
 	std::ostream& c_name(std::ostream &s) const override;
 
-	
 	static const std::string maxInt;
 	static const std::string maxFloat;
-	static const std::string defaultInt; 
+	static const std::string defaultInt;
 
 	static const std::vector<PrimitiveType> types;
 };

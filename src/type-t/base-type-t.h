@@ -1,10 +1,12 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include <ostream>
 
 class TypeT {
 public:
+	typedef std::unique_ptr<TypeT> UPtr;
 	virtual ~TypeT();
 
 	virtual bool assignable(const TypeT &a) const = 0;

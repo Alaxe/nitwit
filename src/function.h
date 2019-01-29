@@ -13,7 +13,7 @@ class Function {
 private:
 	std::vector<VarData> declarations;
 	std::unique_ptr<StatementAST> body;
-	FunctionData proto;
+	const FunctionData *proto;
 
 public:
 	Function(
