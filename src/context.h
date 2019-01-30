@@ -91,8 +91,9 @@ private:
 	uint32_t curIndent;
 public:
 	const GlobalContext &gc;
+	const FunctionData &functionData;
 
-	Context(const GlobalContext &gc);
+	Context(const GlobalContext &gc, const FunctionData &functionData);
 
 	void declare_variable(const std::string &name, const TypeT &type);
 	void update_indent(uint32_t indent);

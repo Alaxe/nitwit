@@ -78,6 +78,9 @@ namespace std {
 
 class Token {
 public:
+	typedef std::vector<Token>::iterator It;
+	typedef std::vector<Token>::const_iterator ConstIt;
+
 	TokenType type;
 	uint32_t startInd, endInd;
 	std::string s;

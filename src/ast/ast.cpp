@@ -5,18 +5,6 @@
 #include <cassert>
 #include <iostream>
 
-ResultT::ResultT(Category cat): cat(cat) {}
-bool ResultT::is_value() const {
-	return (cat == Category::RValue)
-		|| (cat == Category::LValue);
-}
-
-StatementAST::~StatementAST() {}
-void StatementAST::generate_c(std::ostream &out, uint32_t indent) const {
-	out << std::string(indent, ' ');
-	generate_c(out);
-}
-
 const ResultT& ExprAST::get_result_t() {
 	return resultT;
 }
@@ -65,23 +53,7 @@ std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
 	std::reverse(stack.begin(), stack.end());
 	return stack;
 }
-std::unique_ptr<ExprAST> ExprAST::parse_condition(
-	const std::vector<Token> &tok,
-	const Context &context
-) {
-	auto exprList = ExprAST::parse(
-		tok.begin() + 1,
-		tok.end(),
-		context
-	);
-	assert(exprList.size() == 1);
-	const ResultT &t = exprList[0]->get_result_t();
-	assert(t.is_value());
-	assert(t.t.cat == TypeT::Category::Primitive);
-	assert(PrimTypeData::get(t.t.name)->isFloat == false);
 
-	return std::move(exprList[0]);
-}
 
 LitAST::LitAST(const Token &t): val(t.s) {
 	resultT.cat = ResultT::Category::RValue;

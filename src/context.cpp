@@ -263,7 +263,8 @@ std::string Context::get_c_name(const std::string &name, const uint32_t &id) {
 	return "l_" + std::to_string(id) + "_" + name;
 }
 
-Context::Context(const GlobalContext &gc): curIndent(0), gc(gc) {}
+Context::Context(const GlobalContext &gc, const FunctionData &functionData):
+	curIndent(0), gc(gc), functionData(functionData) {}
 const FunctionData* Context::get_function(const std::string &name) const {
 	return gc.get_function(name);
 }
