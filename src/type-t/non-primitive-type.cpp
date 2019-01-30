@@ -1,11 +1,15 @@
 #include "non-primitive-type.h"
 
 
-const NonPrimitiveType* NonPrimitiveType::rvalue_conversion() const {
+NonPrimitiveType::NonPrimitiveType(const NonPrimitiveType &rvalueT):
+	rvalueT(rvalueT) {}
+
+NonPrimitiveType::~NonPrimitiveType() {}
+const NonPrimitiveType& NonPrimitiveType::rvalue_conversion() const {
 	return rvalueT;
 }
 bool NonPrimitiveType::weak() const {
-	return rvalueT != this;
+	return &rvalueT != this;
 }
 
 bool NonPrimitiveType::assignable(const TypeT &a) const {
@@ -13,7 +17,7 @@ bool NonPrimitiveType::assignable(const TypeT &a) const {
 	if (p == nullptr) {
 		return false;
 	}
-	return rvalue_conversion() == p->rvalue_conversion();
+	return &rvalue_conversion() == &p->rvalue_conversion();
 }
 bool NonPrimitiveType::is_lvalue() const {
 	return true;

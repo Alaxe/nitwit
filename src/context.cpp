@@ -177,7 +177,7 @@ void GlobalContext::declare_struct(std::string name) {
 	assert(structs.find(name) == structs.end());
 	auto it = structs.emplace(name, new StructData()).first;
 
-	auto p = StructType::make_pair(it->second.get());
+	auto p = StructType::make_pair(*it->second.get());
 	types.emplace("~" + name, std::move(p.second));
 	types.emplace(std::move(name), std::move(p.first));
 }
@@ -206,23 +206,56 @@ const VarData* GlobalContext::get_variable(const std::string &name) const {
 	}
 }
 
-const TypeT* GlobalContext::get_type(const std::string &name) const {}
-/*
+const TypeT* GlobalContext::get_type(const std::string &name, uint32_t i)
+const {
+	assert(name.size() > i);
+	auto it = types.find(name);
+	if (it != types.end()) {
+		return it->second.get();
+	}
+	bool weak;
+	if (name[i] == '#') {
+		weak = false;
+	} else if (
+		(name.size() > i + 1)
+		&& (name[i] == '~')
+		&& (name[i + 1] == '#')
+	) {
+		weak = true;
+	} else {
+		assert(false);
+	}
+	const TypeT *elT = get_type(name, i + 1 + weak);
+	auto p = ArrayType::make_pair(*elT);
+	auto nameP = std::make_pair(p.first->get_name(), p.second->get_name());
+
+	auto s = types.emplace(std::move(nameP.first), std::move(p.first));
+	auto w = types.emplace(std::move(nameP.second), std::move(p.second));
+
+	return (weak ? w : s).first->second.get();
+}
+
 void GlobalContext::generate_c(std::ostream &out) const {
+	for (const auto &i : types) {
+		i.second->c_declare_type(out);
+	}
+	for (const auto &i : types) {
+		i.second->c_define_type(out);
+	}
 	for (const auto &i : functions) {
-		i.second.generate_c(out);
+		i.second->generate_c(out);
 		out << ";\n";
 	}
 
 	for (const auto &i : variables) {
-		i.second.generate_c(out);
+		i.second->generate_c(out);
 	}
 }
 
 
 Context::VarInst::VarInst() {}
-Context::VarInst::VarInst(const VarData &var, const uint32_t &indent):
-	var(var), indent(indent) {}
+Context::VarInst::VarInst(VarData var, const uint32_t &indent):
+	var(new VarData(std::move(var))), indent(indent) {}
 
 Context::VarStack::VarStack(): nextId(0) {}
 
@@ -264,9 +297,9 @@ const VarData* Context::get_variable(const std::string &name) const {
 	if (vStack.st.empty()) {
 		return gc.get_variable(name);
 	}
-	return &vStack.st.top().var;
+	return vStack.st.top().var.get();
 }
 std::vector<VarData> Context::get_declarations() {
 	return std::move(declarations);
 }
-*/
+

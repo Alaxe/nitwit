@@ -14,7 +14,7 @@ sample.c: nitwit sample.ntwt
 	@./nitwit
 
 obj/%.o: src/%.cpp
-	@mkdir -p obj
+	@mkdir -p obj/type-t obj/ast
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 nitwit: $(OBJECTS)

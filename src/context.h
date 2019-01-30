@@ -57,7 +57,7 @@ public:
 
 	const FunctionData* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
-	const TypeT* get_type(const std::string &name) const;
+	const TypeT* get_type(const std::string &name, uint32_t i = 0) const;
 
 	void generate_c(std::ostream &out) const;
 };
@@ -70,7 +70,7 @@ private:
 		uint32_t indent;
 
 		VarInst();
-		VarInst(const VarData &var, const uint32_t &indent);
+		VarInst(VarData var, const uint32_t &indent);
 	};
 	class VarStack {
 	public:

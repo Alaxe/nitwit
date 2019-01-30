@@ -1,18 +1,19 @@
 #include "struct-type.h"
 
-const StructType* StructType::rvalue_conversion() const {
-	return static_cast<const StructType*> (rvalueT);
+StructType::StructType(const StructData &data): StructType(data, *this) {}
+StructType::StructType(const StructData &data, const StructType &rvalueT):
+	NonPrimitiveType(rvalueT), data(data) {}
+
+const StructType& StructType::rvalue_conversion() const {
+	return static_cast<const StructType&> (rvalueT);
 }
 
-std::pair<StructType::UPtr, StructType::UPtr> StructType::make_pair(
-	const StructData *data
-) {
-	StructType::UPtr strong(new StructType());
-	StructType::UPtr weak(new StructType());
 
-	strong->data = weak->data = data;
-	strong->rvalueT = strong->rvalueT;
-	weak->rvalueT = strong;
+std::pair<StructType::UPtr, StructType::UPtr> StructType::make_pair(
+	const StructData &data
+) {
+	StructType::UPtr strong(new StructType(data));
+	StructType::UPtr weak(new StructType(data, *strong));
 
 	return {std::move(strong), std::move(weak)};
 }
@@ -20,10 +21,10 @@ std::ostream& StructType::get_name(std::ostream &s) const {
 	if (weak()) {
 		s << '~';
 	}
-	return s << data->name;
+	return s << data.name;
 }
 std::ostream& StructType::c_name_raw(std::ostream &s) const {
-	return s << "s_" << data->name;
+	return s << "s_" << data.name;
 }
 std::ostream& StructType::c_declare_type(std::ostream &s) const {
 	if (weak()) {
@@ -34,7 +35,7 @@ std::ostream& StructType::c_declare_type(std::ostream &s) const {
 	c_name_raw(s);
 	return s << ";\n";
 }
-std::ostream& StructType::c_define_type(std::ostream &s) const override {
+std::ostream& StructType::c_define_type(std::ostream &s) const {
 	if (weak()) {
 		return s;
 	}
