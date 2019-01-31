@@ -5,56 +5,6 @@
 #include <cassert>
 #include <iostream>
 
-const ResultT& ExprAST::get_result_t() {
-	return resultT;
-}
-void ExprAST::generate_c(std::ostream &out) const {
-	generate_expr(out);
-	out << ";\n";
-}
-std::vector<std::unique_ptr<ExprAST>> ExprAST::parse(
-	std::vector<Token>::const_iterator begin,
-	std::vector<Token>::const_iterator end,
-	const Context &context) {
-
-	std::vector<std::unique_ptr<ExprAST>> stack;
-	for (auto it = end - 1;it + 1 != begin;it--) {
-		const Token &tok = *it;
-		switch (tok.type) {
-		case TokenType::LitInt:
-		case TokenType::LitFloat:
-			stack.emplace_back(new LitAST(tok));
-			break;
-		case TokenType::Identifier:
-			stack.emplace_back(new IdentifierAST(tok, context));
-			break;
-		default:
-			assert(tok.type & TokenType::Operator);
-			const OperatorData* oprData = OperatorData::get(tok.s);
-
-			if (oprData != nullptr) {
-				if (oprData->arity == 2) {
-					stack.emplace_back(new BinOperatorAST(oprData, stack));
-				} else {
-					assert(oprData->arity == 2);
-				}
-			} else if (tok.s == "@") {
-				stack.emplace_back(new FunctionCallAST(context, stack));
-			} else if (tok.s == "=") {
-				stack.emplace_back(new AssignmentAST(stack));
-			} else if (tok.s == ">>") {
-				stack.emplace_back(new InputAST(stack));
-			} else if (tok.s == "<<") {
-				stack.emplace_back(new OutputAST(stack));
-			}
-		}
-	}
-
-	std::reverse(stack.begin(), stack.end());
-	return stack;
-}
-
-
 LitAST::LitAST(const Token &t): val(t.s) {
 	resultT.cat = ResultT::Category::RValue;
 	resultT.t.cat = TypeT::Category::Primitive;
@@ -104,60 +54,6 @@ void IdentifierAST::generate_expr(std::ostream &out) const {
 	out << name;
 }
 
-BinOperatorAST::BinOperatorAST(const OperatorData *oprData,
-	ExprAST::Stack &stack): oprData(oprData) {
-
-	assert((oprData != nullptr) && (oprData->arity == 2));
-
-	assert(stack.size() >= 2);
-	lhs = std::move(stack.back());
-	stack.pop_back();
-	rhs = std::move(stack.back());
-	stack.pop_back();
-
-	//It's a normal operator, so it only requires its arguments to
-	//values or references
-
-
-	const ResultT &lRes = lhs->get_result_t();
-	const ResultT &rRes = rhs->get_result_t();
-	assert(lRes.is_value());
-	assert(rRes.is_value());
-	assert(rRes.t.cat == TypeT::Category::Primitive);
-	assert(lRes.t.cat == TypeT::Category::Primitive);
-
-	const PrimTypeData *lResData = PrimTypeData::get(lRes.t.name);
-	const PrimTypeData *rResData = PrimTypeData::get(rRes.t.name);
-
-	if (!oprData->takeFloat) {
-		assert(!lResData->isFloat);
-		assert(!rResData->isFloat);
-	}
-
-	resultT.cat = ResultT::Category::RValue;
-	resultT.t.cat = TypeT::Category::Primitive;
-	resultT.t.name = PrimTypeData::combine(
-		PrimTypeData::get(lRes.t.name),
-		PrimTypeData::get(rRes.t.name)
-	)->name;
-
-}
-void BinOperatorAST::debug_print() const {
-	std::cerr << "binary operator " << oprData->name << "\n";
-	std::cerr << "first argument (\n";
-	lhs->debug_print();
-	std::cerr << ")\n";
-	std::cerr << "second argument " << oprData->name << "(\n";
-	rhs->debug_print();
-	std::cerr << ")\n";
-}
-void BinOperatorAST::generate_expr(std::ostream &out) const {
-	out << "(";
-	lhs->generate_expr(out);
-	out << ") " << oprData->cName << " (";
-	rhs->generate_expr(out);
-	out << ")";
-}
 
 FunctionCallAST::FunctionCallAST(const Context &context,
 	ExprAST::Stack &stack) {
@@ -211,35 +107,6 @@ void FunctionCallAST::generate_expr(std::ostream &out) const {
 	out << ")";
 }
 
-AssignmentAST::AssignmentAST(ExprAST::Stack &stack) {
-	assert (stack.size() >= 2);
-	lhs = std::move(stack.back());
-	stack.pop_back();
-	rhs = std::move(stack.back());
-	stack.pop_back();
-
-	assert(lhs->get_result_t().cat == ResultT::Category::LValue);
-	assert(rhs->get_result_t().is_value());
-
-	resultT.cat = ResultT::Category::RValue;
-	resultT.t = lhs->get_result_t().t;
-}
-void AssignmentAST::debug_print() const {
-	std::cerr << "assignment \n";
-	std::cerr << "first argument (\n";
-	lhs->debug_print();
-	std::cerr << ")\n";
-	std::cerr << "second argument (assignment) (\n";
-	rhs->debug_print();
-	std::cerr << ")\n";
-}
-void AssignmentAST::generate_expr(std::ostream &out) const {
-	out << "(";
-	lhs->generate_expr(out);
-	out << ") = (";
-	rhs->generate_expr(out);
-	out << ")";
-}
 
 InputAST::InputAST(ExprAST::Stack &stack) {
 	assert (!stack.empty());

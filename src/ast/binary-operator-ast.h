@@ -8,6 +8,10 @@ protected:
 	const OperatorData *oprData;
 	ExprAST::UPtr lhs, rhs;
 
+	const PrimitiveType *l_type() const;
+	const PrimitiveType *r_type() const;
+	const PrimitiveType *common_type() const;
+
 public:
 	BinaryOperatorAST(
 		Token::ConstIt &begin,

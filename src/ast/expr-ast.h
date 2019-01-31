@@ -14,7 +14,6 @@ protected:
 	ResultCategory resultCat;
 	const TypeT *resultType;
 
-
 public:
 	typedef std::vector<std::unique_ptr<ExprAST>> Stack;
 	typedef std::unique_ptr<ExprAST> UPtr;
@@ -30,5 +29,9 @@ public:
 		Token::ConstIt end,
 		const Context &context
 	);
+	static UPtr parse_condition(
+		Token::ConstIt &begin,
+		Token::ConstIt end,
+		const Context &context
+	);
 };
-

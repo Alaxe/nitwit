@@ -2,12 +2,12 @@
 
 #include "expr-ast.h"
 
-class OutputAST : public ExprAST {
+class WriteAST : public ExprAST {
 protected:
 	ExprAST::UPtr operand;
 public:
-	ExprAST(
-		Token::ConstIt &begin
+	WriteAST(
+		Token::ConstIt &begin,
 		Token::ConstIt end,
 		const Context &context
 	);

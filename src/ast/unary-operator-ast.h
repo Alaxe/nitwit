@@ -7,6 +7,8 @@ class UnaryOperatorAST : public ExprAST {
 protected:
 	const OperatorData *oprData;
 	ExprAST::UPtr operand;
+
+	const PrimitiveType* operand_type() const;
 public:
 	UnaryOperatorAST(
 		Token::ConstIt &begin,
@@ -16,4 +18,3 @@ public:
 
 	virtual void generate_expr(std::ostream &out) const;
 };
-

@@ -11,49 +11,52 @@ ExprAST::UPtr ExprAST::parse(
 	Token::ConstIt end,
 	const Context &context
 ) {
-	if (begin == end) {
-		return nullptr;
-	}
-	const Token &tok = *begin;
-	begin++;
+	assert(begin != end);
+	const Token &token = *begin;
+	const TokenType &tt = token.type;
 
-	if (tok.type & TokenType::Literal) {
-		return new LitAST(begin, end, context);
-	}
+	ExprAST* ans = nullptr;
 
-	std::vector<std::unique_ptr<ExprAST>> stack;
-	for (auto it = end - 1;it + 1 != begin;it--) {
-		const Token &tok = *it;
-		switch (tok.type) {
-		case TokenType::LitInt:
-		case TokenType::LitFloat:
-			stack.emplace_back(new LitAST(tok));
-			break;
-		case TokenType::Identifier:
-			stack.emplace_back(new IdentifierAST(tok, context));
-			break;
-		default:
-			assert(tok.type & TokenType::Operator);
-			const OperatorData* oprData = OperatorData::get(tok.s);
-
-			if (oprData != nullptr) {
-				if (oprData->arity == 2) {
-					stack.emplace_back(new BinOperatorAST(oprData, stack));
-				} else {
-					assert(oprData->arity == 2);
-				}
-			} else if (tok.s == "@") {
-				stack.emplace_back(new FunctionCallAST(context, stack));
-			} else if (tok.s == "=") {
-				stack.emplace_back(new AssignmentAST(stack));
-			} else if (tok.s == ">>") {
-				stack.emplace_back(new InputAST(stack));
-			} else if (tok.s == "<<") {
-				stack.emplace_back(new OutputAST(stack));
-			}
+	if (tt & TokenType::Literal) {
+		ans = new LiteralAST(token, context);
+		begin++;
+	} else if (tt == TokenType::Identifier) {
+		ans = new VariableAST(token, context);
+		begin++;
+	} else if (tt & TokenType::Operator) {
+		if (tt & TokenType::BinOpr) {
+			ans = new BinaryOperatorAST(begin, end, context);
+		} else if (tt & TokenType::UnOpr) {
+			ans = new UnaryOperatorAST(begin, end, context);
+		} else if (tt & TokenType::AugOpr) {
+			assert((tt & TokenType::AugOpr) == 0);
+		} else if (tt == TokenType::Assign) {
+			ans = new AssignmentAST(begin, end, context);
+		} else if (tt == TokenType::FuncCall) {
+			ans = new FunctionCallAST(begin, end, context);
+		} else if (tt == TokenType::Read) {
+			ans = new ReadAST(begin, end, context);
+		} else if (tt == TokenType::Write) {
+			ans = new WriteAST(begin, end, context);
 		}
+	} else {
+		assert(false);
 	}
+	return ExprAST::UPtr(ans);
+}
 
-	std::reverse(stack.begin(), stack.end());
-	return stack;
+ExprAST::UPtr ExprAST::parse_condition(
+	Token::ConstIt &begin,
+	Token::ConstIt end,
+	const Context &context
+) {
+	auto ans = parse(begin, end, context);
+
+	const PrimitiveType *pt = dynamic_cast<const PrimitiveType*>(
+		ans->resultType
+	);
+	assert(pt);
+	assert(!pt->isFloat);
+
+	return std::move(ans);
 }

@@ -6,7 +6,7 @@ protected:
 	ExprAST::UPtr lhs, rhs;
 public:
 	AssignmentAST(
-		Token::ConstIt &begin
+		Token::ConstIt &begin,
 		Token::ConstIt end,
 		const Context &context
 	);
@@ -14,4 +14,3 @@ public:
 	virtual void debug_print() const;
 	virtual void generate_expr(std::ostream &out) const;
 };
-

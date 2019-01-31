@@ -13,9 +13,8 @@ protected:
 public:
 	FunctionCallAST(	
 		Token::ConstIt &begin,
-		Token::ConstIt &end,
+		Token::ConstIt end,
 		const Context &context
 	);
-	virtual void debug_print() const;
 	virtual void generate_expr(std::ostream &out) const;
 };
