@@ -3,8 +3,6 @@
 #include <iostream>
 #include <cassert>
 
-#include "prim-type-data.h"
-
 VarData::VarData(const TypeT &type, std::string name):
 	type(type), name(std::move(name)) {}
 
@@ -49,6 +47,7 @@ FunctionData GlobalContext::parse_func_declaration(const Line &l) const {
 		const TypeT* argType = get_type(argTypeTok.s);
 
 		assert(argType);
+		assert(argType->is_declarable());
 		args.push_back({*argType, argNameTok.s});
 	}
 
@@ -70,6 +69,7 @@ VarData GlobalContext::parse_var_declaration(const Line &l) const {
 
 	const TypeT *retType = get_type(typeTok.s);
 	assert(retType);
+	assert(retType->is_declarable());
 
 	return VarData(*retType, nameTok.s);
 }
@@ -96,6 +96,9 @@ StructData GlobalContext::parse_struct_definition(
 		assert(s.members.find(l.tokens[2].s) == s.members.end());
 
 		const TypeT *type = get_type(l.tokens[1].s);
+		assert(type);
+		assert(type->is_declarable());
+
 		s.members[l.tokens[2].s] = type;
 	}
 	return s;
@@ -226,6 +229,8 @@ const {
 		assert(false);
 	}
 	const TypeT *elT = get_type(name, i + 1 + weak);
+	assert(elT != nullptr);
+	assert(elT->is_declarable());
 	auto p = ArrayType::make_pair(*elT);
 	auto nameP = std::make_pair(p.first->get_name(), p.second->get_name());
 
@@ -233,6 +238,9 @@ const {
 	auto w = types.emplace(std::move(nameP.second), std::move(p.second));
 
 	return (weak ? w : s).first->second.get();
+}
+const TypeT* GlobalContext::get_null_type() const {
+	return &nullType;
 }
 
 void GlobalContext::generate_c(std::ostream &out) const {
@@ -265,9 +273,7 @@ std::string Context::get_c_name(const std::string &name, const uint32_t &id) {
 
 Context::Context(const GlobalContext &gc, const FunctionData &functionData):
 	curIndent(0), gc(gc), functionData(functionData) {}
-const FunctionData* Context::get_function(const std::string &name) const {
-	return gc.get_function(name);
-}
+
 void Context::declare_variable(const std::string &name, const TypeT &type) {
 	VarStack &vStack = variables[name];
 	assert((vStack.st.empty()) || (vStack.st.top().indent < curIndent));
@@ -289,6 +295,7 @@ void Context::update_indent(uint32_t indent) {
 		jointSt.pop();
 	}
 }
+
 const VarData* Context::get_variable(const std::string &name) const {
 	auto it = variables.find(name);
 	if (it == variables.end()) {
@@ -300,7 +307,15 @@ const VarData* Context::get_variable(const std::string &name) const {
 	}
 	return vStack.st.top().var.get();
 }
+const FunctionData* Context::get_function(const std::string &name) const {
+	return gc.get_function(name);
+}
+const TypeT* Context::get_type(const std::string &name) const {
+	return gc.get_type(name);
+}
+const TypeT* Context::get_null_type() const {
+	return gc.get_null_type();
+}
 std::vector<VarData> Context::get_declarations() {
 	return std::move(declarations);
 }
-

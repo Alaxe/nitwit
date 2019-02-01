@@ -32,6 +32,7 @@ private:
 	std::unordered_map<std::string, StructData::UPtr> structs;
 	//get_type creates array types, which are addded here
 	mutable std::unordered_map<std::string, TypeT::UPtr> types;
+	NullType nullType;
 
 	void add_primitive_types();
 
@@ -58,6 +59,7 @@ public:
 	const FunctionData* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
 	const TypeT* get_type(const std::string &name, uint32_t i = 0) const;
+	const TypeT* get_null_type() const;
 
 	void generate_c(std::ostream &out) const;
 };
@@ -101,6 +103,7 @@ public:
 	const FunctionData* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
 	const TypeT* get_type(const std::string &name) const;
+	const TypeT* get_null_type() const;
 
 	std::vector<VarData> get_declarations();
 };

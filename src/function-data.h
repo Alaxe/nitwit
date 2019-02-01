@@ -25,5 +25,6 @@ public:
 		const std::vector<ArgT> &args
 	);
 
+	void c_name(std::ostream &out) const;
 	void generate_c(std::ostream &out) const;
 };

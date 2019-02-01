@@ -15,14 +15,14 @@ UnaryOperatorAST::UnaryOperatorAST(
 	assert(oprData != nullptr); // shouldn't trigger
 	begin++;
 
-	operand = ExprAST::parse_value(begin, end, context);
+	operand = ExprAST::parse(begin, end, context);
 	assert(operand_type() != nullptr);
 
 	if (!oprData->takeFloat) {
 		assert(!operand_type()->isFloat);
 	}
 
-	resultCat = ResultCategory::LValue;
+	lvalue = false;
 	if (oprData->resCommon) {
 		resultType = operand_type();
 	} else {

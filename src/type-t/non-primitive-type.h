@@ -15,10 +15,10 @@ public:
 	virtual const NonPrimitiveType& rvalue_conversion() const;
 
 	virtual bool assignable(const TypeT &a) const override;
-	virtual bool is_lvalue() const override;
-	virtual bool is_rvalue() const override;
+	virtual bool is_declarable() const override;
+	virtual bool is_rvalue() const;
 
-	virtual std::ostream& c_name_raw(std::ostream &s) const = 0;
+	virtual void c_name_raw(std::ostream &s) const = 0;
 	using TypeT::c_name;
-	virtual std::ostream& c_name(std::ostream &s) const override;
+	virtual void c_name(std::ostream &s) const override;
 };

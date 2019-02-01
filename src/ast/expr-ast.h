@@ -11,14 +11,14 @@
 
 class ExprAST : public StatementAST {
 protected:
-	ResultCategory resultCat;
+	bool lvalue;
 	const TypeT *resultType;
 
 public:
 	typedef std::vector<std::unique_ptr<ExprAST>> Stack;
 	typedef std::unique_ptr<ExprAST> UPtr;
 
-	const ResultCategory& get_result_category() const;
+	bool is_lvalue() const;
 	const TypeT* get_result_type() const;
 
 	virtual void generate_c(std::ostream &out) const;

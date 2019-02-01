@@ -24,17 +24,19 @@ public:
 	);
 
 	const PrimitiveType& common_type(const PrimitiveType &t2) const;
-	std::ostream& c_read_function(std::ostream &s) const;
-	std::ostream& c_write_function(std::ostream &s) const;
+	void c_read_function(std::ostream &s) const;
+	void c_write_function(std::ostream &s) const;
 
 	bool assignable(const TypeT &a) const override;
-	bool is_lvalue() const override;
-	bool is_rvalue() const override;
-	std::ostream& get_name(std::ostream &s) const override;
+	bool is_declarable() const override;
 
-	std::ostream& c_declare_type(std::ostream &s) const override;
-	std::ostream& c_define_type(std::ostream &s) const override;
-	std::ostream& c_name(std::ostream &s) const override;
+	using TypeT::get_name;
+	using TypeT::c_name;
+
+	void get_name(std::ostream &s) const override;
+	void c_declare_type(std::ostream &s) const override;
+	void c_define_type(std::ostream &s) const override;
+	void c_name(std::ostream &s) const override;
 
 	static const std::string maxInt;
 	static const std::string maxFloat;

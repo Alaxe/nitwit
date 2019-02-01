@@ -5,6 +5,7 @@
 class WriteAST : public ExprAST {
 protected:
 	ExprAST::UPtr operand;
+	const PrimitiveType* operand_type() const;
 public:
 	WriteAST(
 		Token::ConstIt &begin,
@@ -12,8 +13,5 @@ public:
 		const Context &context
 	);
 
-	virtual void debug_print() const;
 	virtual void generate_expr(std::ostream &out) const;
 };
-
-

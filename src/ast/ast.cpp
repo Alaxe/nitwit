@@ -54,60 +54,6 @@ void IdentifierAST::generate_expr(std::ostream &out) const {
 	out << name;
 }
 
-
-FunctionCallAST::FunctionCallAST(const Context &context,
-	ExprAST::Stack &stack) {
-
-	assert(!stack.empty());
-
-	std::unique_ptr<IdentifierAST> funcIdent(
-		dynamic_cast<IdentifierAST*> (stack.back().release())
-	);
-	stack.pop_back();
-	assert(funcIdent != nullptr);
-	funcName = funcIdent->get_name();
-
-
-	const FunctionData *func = context.get_function(funcName);
-	assert(func != nullptr);
-	assert(func->args.size() <= stack.size());
-
-	for (uint32_t i = 0;i < func->args.size();i++) {
-		const ResultT &argT = stack.back()->get_result_t();
-		assert(argT.is_value());
-		assert(argT.t.cat == TypeT::Category::Primitive);
-
-		args.push_back(std::move(stack.back()));
-		stack.pop_back();
-	}
-
-	resultT.cat = ResultT::Category::RValue;
-	resultT.t = func->returnT;
-}
-void FunctionCallAST::debug_print() const {
-	std::cerr << "function call " << funcName << " with ";
-	std::cerr << args.size() << "arguments.\n";
-	for (uint32_t i = 0;i < args.size();i++) {
-		std::cerr << "argument " << i + 1 << " (";
-		std::cerr << funcName << ") (\n";
-
-		args[i]->debug_print();
-		std::cerr << ")\n";
-	}
-}
-void FunctionCallAST::generate_expr(std::ostream &out) const {
-	out << funcName << "(";
-	if (!args.empty()) {
-		args[0]->generate_expr(out);
-		for (uint32_t i = 1;i < args.size();i++) {
-			out << ", ";
-			args[i]->generate_expr(out);
-		}
-	}
-	out << ")";
-}
-
-
 InputAST::InputAST(ExprAST::Stack &stack) {
 	assert (!stack.empty());
 	operand = std::move(stack.back());

@@ -16,35 +16,34 @@ std::pair<ArrayType::UPtr, ArrayType::UPtr> ArrayType::make_pair(
 	UPtr week(new ArrayType(elementT, *strong));
 	return {std::move(strong), std::move(week)};
 }
-std::ostream& ArrayType::get_name(std::ostream &s) const {
+void ArrayType::get_name(std::ostream &s) const {
 	if (weak()) {
 		s << "~";
 	}
 	s << "#";
-	return elementT.get_name(s);
+	elementT.get_name(s);
 }
-std::ostream& ArrayType::c_declare_type(std::ostream &s) const {
+void ArrayType::c_declare_type(std::ostream &s) const {
 	if (weak()) {
-		return s;
+		return;
 	}
 	s << "struct ";
 	c_name_raw(s);
-	return s << ";\n";
+	s << ";\n";
 }
-std::ostream& ArrayType::c_define_type(std::ostream &s) const {
+void ArrayType::c_define_type(std::ostream &s) const {
 	if (weak()) {
-		return s;
+		return;
 	}
-	return s;
 }
-std::ostream& ArrayType::c_name_raw(std::ostream &s) const {
+void ArrayType::c_name_raw(std::ostream &s) const {
 	s << "a";
 	s << (weak() ? 'w' : 's');
 	s << "_";
 	auto *t = dynamic_cast<const NonPrimitiveType*>(&elementT);
 	if (t) {
-		return t->c_name_raw(s);
+		t->c_name_raw(s);
 	} else {
-		return elementT.c_name(s);
+		elementT.c_name(s);
 	}
 }

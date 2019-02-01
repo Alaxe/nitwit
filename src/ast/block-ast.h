@@ -14,7 +14,6 @@ public:
 		Context &context,
 		uint32_t indent = 1
 	);
-	void debug_print() const;
 	void generate_c(std::ostream &out) const;
 	void generate_c(std::ostream &out, uint32_t indent) const;
 };

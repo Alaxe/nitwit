@@ -1,10 +1,10 @@
 #pragma once
 #include "flawed-type.h"
 
-class VoidType : public FlawedType {
+class NullType : public FlawedType {
 public:
-	typedef std::unique_ptr<VoidType> UPtr;
-	virtual ~VoidType();
+	typedef std::unique_ptr<NullType> UPtr;
+	virtual ~NullType();
 
 	using TypeT::get_name;
 	virtual void get_name(std::ostream &s) const override;

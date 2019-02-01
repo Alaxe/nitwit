@@ -19,13 +19,10 @@ public:
 	static std::pair<UPtr, UPtr> make_pair(const StructData &data);
 
 	using TypeT::get_name;
-	std::ostream& get_name(std::ostream &s) const override;
-	std::ostream& c_declare_type(std::ostream &s) const override;
-	std::ostream& c_define_type(std::ostream &s) const override;
-	std::ostream& c_name_raw(std::ostream &s) const override;
+	void get_name(std::ostream &s) const override;
+	void c_declare_type(std::ostream &s) const override;
+	void c_define_type(std::ostream &s) const override;
+	void c_name_raw(std::ostream &s) const override;
 
-	static std::ostream& c_member_name(
-		std::ostream &s,
-		const std::string &name
-	);
+	static void c_member_name(std::ostream &s, const std::string &name);
 };

@@ -22,10 +22,10 @@ BinaryOperatorAST::BinaryOperatorAST(
 	assert(oprData != nullptr); // shouldn't trigger
 	begin++;
 
-	lhs = ExprAST::parse_value(begin, end, context);
+	lhs = ExprAST::parse(begin, end, context);
 	assert(l_type() != nullptr);
 
-	rhs = ExprAST::parse_value(begin, end, context);
+	rhs = ExprAST::parse(begin, end, context);
 	assert(r_type() != nullptr);
 
 	if (!oprData->takeFloat) {
@@ -33,7 +33,7 @@ BinaryOperatorAST::BinaryOperatorAST(
 		assert(!r_type()->isFloat);
 	}
 
-	resultCat = ResultCategory::LValue;
+	lvalue = false;
 	if (oprData->resCommon) {
 		resultType = common_type();
 	} else {

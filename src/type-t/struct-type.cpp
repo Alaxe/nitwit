@@ -17,35 +17,31 @@ std::pair<StructType::UPtr, StructType::UPtr> StructType::make_pair(
 
 	return {std::move(strong), std::move(weak)};
 }
-std::ostream& StructType::get_name(std::ostream &s) const {
+void StructType::get_name(std::ostream &s) const {
 	if (weak()) {
 		s << '~';
 	}
-	return s << data.name;
+	s << data.name;
 }
-std::ostream& StructType::c_name_raw(std::ostream &s) const {
-	return s << "s_" << data.name;
+void StructType::c_name_raw(std::ostream &s) const {
+	s << "s_" << data.name;
 }
-std::ostream& StructType::c_declare_type(std::ostream &s) const {
+void StructType::c_declare_type(std::ostream &s) const {
 	if (weak()) {
-		return s;
+		return;
 	}
 
 	s << "struct ";
 	c_name_raw(s);
-	return s << ";\n";
+	s << ";\n";
 }
-std::ostream& StructType::c_define_type(std::ostream &s) const {
+void StructType::c_define_type(std::ostream &s) const {
 	if (weak()) {
-		return s;
+		return;
 	}
-	return s;
 }
 
-std::ostream& StructType::c_member_name(
-	std::ostream &s,
-	const std::string &name
-) {
-	return s << "m_" << name;
+void StructType::c_member_name(std::ostream &s,const std::string &name) {
+	s << "m_" << name;
 }
 

@@ -7,8 +7,7 @@ class LiteralAST : public ExprAST {
 private:
 	std::string val;
 public:
-	LiteralAST(const Token &t, const Context &context;
-	const std::string& get_val() const;
-	virtual void debug_print() const;
+	LiteralAST(const Token &t, const Context &context);
+
 	virtual void generate_expr(std::ostream &out) const;
 };
