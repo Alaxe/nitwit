@@ -8,7 +8,6 @@
 #include "ast/if-ast.h"
 #include "ast/literal-ast.h"
 #include "ast/read-ast.h"
-#include "ast/result-category.h"
 #include "ast/return-ast.h"
 #include "ast/statement-ast.h"
 #include "ast/variable-ast.h"

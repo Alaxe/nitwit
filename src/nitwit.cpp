@@ -22,7 +22,7 @@ int main() {
 		std::cerr << i << "\n";
 	}
 
-	GlobalContext globalContext = GlobalContext(code);
+	GlobalContext globalContext = GlobalContext(code.begin(), code.end());
 	std::vector<Function> functions = Function::parse_all(
 		code,
 		globalContext
@@ -31,9 +31,6 @@ int main() {
 	std::ofstream fout("sample.c");
 	fout << "#include <stdio.h>\n";
 	fout << "#include <inttypes.h>\n";
-
-	InputAST::generate_default_c(fout);
-	OutputAST::generate_default_c(fout);
 
 	globalContext.generate_c(fout);
 

@@ -4,7 +4,6 @@
 #include "../lexer.h"
 #include "../type-t.h"
 
-#include "result-category.h"
 #include "statement-ast.h"
 
 #include <memory>

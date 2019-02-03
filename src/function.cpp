@@ -1,5 +1,4 @@
 #include "function.h"
-#include "prim-type-data.h"
 
 #include <cassert>
 #include <iostream>
@@ -8,10 +7,13 @@ Function::Function(
 	std::vector<Line>::const_iterator begin,
 	std::vector<Line>::const_iterator end,
 	const GlobalContext &globalContext
-): proto(*begin) {
-	Context context(globalContext);
+) {
+	assert(begin->tokens.size() >= 3);
+	proto = globalContext.get_function(begin->tokens[2].s);
 
-	for (auto &i : proto.args) {
+	Context context(globalContext, *proto);
+
+	for (auto &i : proto->args) {
 		context.declare_variable(i.second, i.first);
 		i.second = context.get_variable(i.second)->name;
 	}

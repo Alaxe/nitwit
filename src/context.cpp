@@ -271,6 +271,10 @@ std::string Context::get_c_name(const std::string &name, const uint32_t &id) {
 	return "l_" + std::to_string(id) + "_" + name;
 }
 
+void Context::get_c_arg_name(std::ostream &out, const std::string &name) {
+	out << "l_0_" << name;
+}
+
 Context::Context(const GlobalContext &gc, const FunctionData &functionData):
 	curIndent(0), gc(gc), functionData(functionData) {}
 

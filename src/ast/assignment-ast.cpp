@@ -67,10 +67,12 @@ AssignmentAST::UPtr AssignmentAST::parse_declaration(
 		} else if (dynamic_cast<const NonPrimitiveType*>(varT)) {
 			t.type = TokenType::LitNull;
 			t.s = ".";
+		} else {
+			assert(false);
 		}
 		ans->rhs = ExprAST::UPtr(new LiteralAST(t, context));
-	} 
-	
+	}
+
 	context.declare_variable(tok[2].s, *varT);
 	ans->lhs = ExprAST::UPtr(new VariableAST(tok[2], context));
 	ans->resultType = varT;

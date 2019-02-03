@@ -11,6 +11,12 @@
 
 class FunctionData {
 public:
+	class Argument {
+	public:
+		const TypeT &type;
+		std::string name;
+		Argument(const TypeT &type, std::string name);
+	};
 	typedef std::pair<const TypeT&, std::string> ArgT;
 	typedef std::unique_ptr<FunctionData> UPtr;
 
@@ -18,7 +24,6 @@ public:
 	std::string name;
 	std::vector<ArgT> args;
 
-	FunctionData();
 	FunctionData(
 		const TypeT &returnT,
 		const std::string &name,

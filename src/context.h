@@ -92,6 +92,8 @@ private:
 
 	uint32_t curIndent;
 public:
+	static void get_c_arg_name(std::ostream &out, const std::string &name);
+
 	const GlobalContext &gc;
 	const FunctionData &functionData;
 

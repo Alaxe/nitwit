@@ -52,4 +52,3 @@ void BlockAST::generate_c(std::ostream &out) const {
 		i->generate_c(out, indent);
 	}
 }
-
