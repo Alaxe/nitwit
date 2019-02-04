@@ -5,7 +5,7 @@ $@ int64 fact int a
         => 1
 
 $@ void factor int num int curD
-    ? == 0 // num curD
+    ? < // num curD 1
         << curD
         @factor / num curD curD
     !? > * curD curD num

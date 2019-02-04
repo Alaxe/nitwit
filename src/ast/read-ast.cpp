@@ -2,7 +2,7 @@
 #include <cassert>
 
 const PrimitiveType* ReadAST::operand_type() const {
-	return dynamic_cast<const PrimitiveType*> (operand.get());
+	return dynamic_cast<const PrimitiveType*> (operand->get_result_type());
 }
 ReadAST::ReadAST(
 	Token::ConstIt &begin,
@@ -19,7 +19,7 @@ ReadAST::ReadAST(
 }
 void ReadAST::generate_expr(std::ostream &out) const {
 	operand_type()->c_read_function(out);
-	out << "(";
+	out << "(&(";
 	operand->generate_expr(out);
-	out << ")";
+	out << "))";
 }
