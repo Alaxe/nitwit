@@ -30,12 +30,18 @@ int main() {
 	);
 
 	std::ofstream fout("sample.c");
-	fout << "#include <stdio.h>\n";
-	fout << "#include <inttypes.h>\n";
-
 	globalContext.generate_c(fout);
 
 	for (const auto &f : functions) {
 		f.generate_c(fout);
 	}
+	const FunctionData *mainData = globalContext.get_function("main");
+	assert(mainData);
+	assert(&mainData->returnT ==
+		globalContext.get_type(PrimitiveType::defaultInt)
+	);
+	assert(mainData->args.empty());
+	fout << "int main()\n{\n";
+	mainData->c_name(fout);
+	fout << "();\n}\n";
 }

@@ -9,7 +9,7 @@ void VarData::c_name(std::ostream &out) const {
 	out << name;
 }
 void VarData::c_declaration(std::ostream &out, uint32_t indent) const {
-	out << std::string(' ', indent);
+	out << std::string(indent, ' ');
 	type.c_name(out);
 	out << " ";
 	c_name(out);

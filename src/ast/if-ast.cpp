@@ -3,6 +3,7 @@
 
 IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 	TokenType nextIf = TokenType::If;
+	uint32_t indent = begin->indent;
 	while (begin != end) {
 		const auto &tok = begin->tokens;
 		if (tok[0].type != nextIf) {
@@ -26,7 +27,11 @@ IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 		ifPairs.push_back({std::move(condition), std::move(body)});
 		nextIf = TokenType::Elif;
 	}
-	if ((begin != end) && (begin->tokens[0].type == TokenType::Else)) {
+	if (
+		(begin != end)
+		&& (begin->tokens[0].type == TokenType::Else)
+		&& (begin->indent == indent)
+	) {
 		uint32_t indent = begin->indent + 1;
 		begin++;
 		elseBody = BlockAST::UPtr(new BlockAST(
@@ -45,20 +50,21 @@ void IfAST::generate_c(std::ostream &out, uint32_t indent) const {
 	std::string indentS = std::string(indent, ' ');
 	bool first = true;
 	for (const IfPair &p : ifPairs) {
-		out << (first ? indentS : " else ");
+		out << indentS;
+		if (!first) {
+			out << "else ";
+		} 
 		out << "if (";
 		p.first->generate_expr(out);
-		out << ") {\n";
-		p.second->generate_c(out);
-		out << indentS << "}";
+		out << ")\n";
+		p.second->generate_c(out, indent);
 
 		first = false;
 	}
 	if (elseBody) {
-		out << " else {\n";
-		elseBody->generate_c(out);
-		out << indentS << "}";
+		out << indentS;
+		out << "else\n";
+		elseBody->generate_c(out, indent);
 	}
 	out << "\n";
 }
-

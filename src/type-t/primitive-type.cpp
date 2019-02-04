@@ -56,7 +56,7 @@ void PrimitiveType::get_name(std::ostream &s) const {
 }
 void PrimitiveType::c_declare_type(std::ostream &s) const {
 	if (castIndex == 0) {
-		s << "#include <stdint.h>\n";
+		s << "#include <inttypes.h>\n";
 		s << "#include <stdio.h>\n";
 	}
 }
@@ -70,7 +70,7 @@ void PrimitiveType::c_define_type(std::ostream &s) const {
 	s << "int32_t ";
 	c_write_function(s);
 	s << "(" << cName << " a) {\n";
-	s << "\treturn printf(\"%\" " << printfMacro << ", a) > 0 ? 1 : 0;\n";
+	s << "\treturn printf(\"%\" " << printfMacro << " \"\\n\", a) > 0 ? 1 : 0;\n";
 	s << "}\n";
 }
 void PrimitiveType::c_name(std::ostream &s) const {

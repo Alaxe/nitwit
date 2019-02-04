@@ -51,7 +51,7 @@ BlockAST::BlockAST(
 }
 
 void BlockAST::generate_c(std::ostream &out, uint32_t parIndent) const {
-	std::string indentS = std::string(' ', parIndent);
+	std::string indentS = std::string(parIndent, ' ');
 	out << indentS << "{\n";
 	for (const auto &i : declarations) {
 		i.c_declaration(out, indent);

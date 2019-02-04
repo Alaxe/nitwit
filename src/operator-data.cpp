@@ -23,7 +23,7 @@ std::unordered_map<TokenType, OperatorData> OperatorData::operators = {
 	{TokenType::Minus, {TokenType::Minus, true, true, "-"}},
 	{TokenType::Times, {TokenType::Times, true, true, "*"}},
 	{TokenType::Divide, {TokenType::Divide, true, true, "/"}},
-	{TokenType::Remainder, {TokenType::Remainder, false, true, "//"}},
+	{TokenType::Remainder, {TokenType::Remainder, false, true, "%"}},
 
 	{TokenType::Less, {TokenType::Less, true, false, "<"}},
 	{TokenType::Greater, {TokenType::Greater, true, false, ">"}},
