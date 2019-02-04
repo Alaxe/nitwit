@@ -1,31 +1,20 @@
 #pragma once
 
+#include <memory>
 #include <ostream>
 #include <stack>
 #include <string>
 #include <unordered_map>
-#include <memory>
+#include <unordered_set>
 #include <vector>
 
 #include "function-data.h"
 #include "lexer.h"
 #include "type-t.h"
-
-class VarData {
-public:
-	typedef std::unique_ptr<VarData> UPtr;
-
-	const TypeT &type;
-	std::string name;
-	VarData(const TypeT &type, std::string name);
-
-	std::ostream& generate_c(std::ostream &out) const;
-};
+#include "var-data.h"
 
 class GlobalContext {
 private:
-	static std::string get_var_c_name(const std::string &name);
-
 	std::unordered_map<std::string, FunctionData::UPtr> functions;
 	std::unordered_map<std::string, VarData::UPtr> variables;
 
@@ -66,46 +55,32 @@ public:
 
 class Context {
 private:
-	class VarInst {
+	class Block {
 	public:
-		std::unique_ptr<VarData> var;
-		uint32_t indent;
+		uint32_t id;
+		std::unordered_set<std::string> vars;
 
-		VarInst();
-		VarInst(VarData var, const uint32_t &indent);
-	};
-	class VarStack {
-	public:
-		uint32_t nextId;
-		std::stack<VarInst> st;
-		VarStack();
+		Block(uint32_t id);
 	};
 
-	static std::string get_c_name(
-		const std::string &name,
-		const uint32_t& id
-	);
+	std::stack<Block> blockSt;
+	std::unordered_map<std::string, std::stack<VarData::UPtr>> varSt;
 
-	std::stack<std::pair<uint32_t, std::string>> jointSt;
-	std::unordered_map<std::string, VarStack> variables;
-	std::vector<VarData> declarations;
-
-	uint32_t curIndent;
+	uint32_t nextBlockId;
 public:
-	static void get_c_arg_name(std::ostream &out, const std::string &name);
-
 	const GlobalContext &gc;
 	const FunctionData &functionData;
 
 	Context(const GlobalContext &gc, const FunctionData &functionData);
 
-	void declare_variable(const std::string &name, const TypeT &type);
-	void update_indent(uint32_t indent);
+	void start_block();
+	std::vector<VarData::UPtr> end_block();
+	uint32_t get_block_id() const;
+
+	void declare_variable(std::string name, const TypeT &type);
 
 	const FunctionData* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
 	const TypeT* get_type(const std::string &name) const;
 	const TypeT* get_null_type() const;
-
-	std::vector<VarData> get_declarations();
 };

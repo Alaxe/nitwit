@@ -44,11 +44,13 @@ BlockAST::BlockAST(
 	}
 }
 
-void BlockAST::generate_c(std::ostream &out, uint32_t) const {
-	generate_c(out);
-}
-void BlockAST::generate_c(std::ostream &out) const {
+void BlockAST::generate_c(std::ostream &out, uint32_t indent) const {
+	out << std::string(' ', indent) << "{\n";
 	for (const auto &i : statements) {
 		i->generate_c(out, indent);
 	}
+	out << "}\n";
+}
+void BlockAST::generate_c(std::ostream &out) const {
+	generate_c(out, 0);
 }
