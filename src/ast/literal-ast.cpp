@@ -18,5 +18,9 @@ LiteralAST::LiteralAST(const Token &t, const Context &context) {
 }
 
 void LiteralAST::generate_expr(std::ostream &out) const {
+	if (dynamic_cast<const PrimitiveType*>(resultType)) {
+		out << val << "LL";
+	} else if (dynamic_cast<const NullType*>(resultType)) {
+		out << "NULL";
+	}
 }
-

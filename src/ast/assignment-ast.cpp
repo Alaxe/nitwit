@@ -44,7 +44,6 @@ AssignmentAST::UPtr AssignmentAST::parse_declaration(
 	Context &context
 ) {
 	const auto &tok = l.tokens;
-	AssignmentAST::UPtr ans(new AssignmentAST());
 	assert(tok.size() >= 3);
 
 	assert(tok[1].type == TokenType::Identifier);
@@ -54,27 +53,22 @@ AssignmentAST::UPtr AssignmentAST::parse_declaration(
 	assert(varT);
 	assert(varT->is_declarable());
 
+	AssignmentAST::UPtr ans;
+
 	if (tok.size() > 3) {
+		ans = AssignmentAST::UPtr(new AssignmentAST());
+
 		auto it = tok.begin() + 3;
 		ans->rhs = ExprAST::parse(it, tok.end(), context);
 		assert(varT->assignable(*ans->rhs->get_result_type()));
 		assert(it == tok.end());
-	} else {
-		Token t;
-		if (dynamic_cast<const PrimitiveType*>(varT)) {
-			t.type = TokenType::LitInt;
-			t.s = "0";
-		} else if (dynamic_cast<const NonPrimitiveType*>(varT)) {
-			t.type = TokenType::LitNull;
-			t.s = ".";
-		} else {
-			assert(false);
-		}
-		ans->rhs = ExprAST::UPtr(new LiteralAST(t, context));
 	}
 
 	context.declare_variable(tok[2].s, *varT);
-	ans->lhs = ExprAST::UPtr(new VariableAST(tok[2], context));
-	ans->resultType = varT;
+
+	if (tok.size() > 3) {
+		ans->lhs = ExprAST::UPtr(new VariableAST(tok[2], context));
+		ans->resultType = varT;
+	}
 	return ans;
 }

@@ -19,7 +19,7 @@ FunctionCallAST::FunctionCallAST(
 
 	for (const auto &i : func->args) {
 		ExprAST::UPtr a = ExprAST::parse(begin, end, context);
-		assert(i.first.assignable(*a->get_result_type()));
+		assert(i.type.assignable(*a->get_result_type()));
 		args.push_back(std::move(a));
 	}
 	lvalue = false;

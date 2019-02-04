@@ -1,6 +1,7 @@
 CC=g++
 CFLAGS=-std=c++11 -fsanitize=address -Wall -Wextra -Wpedantic
-OBJECTS = $(patsubst src/%.cpp,obj/%.o,$(wildcard src/*.cpp))
+SRC = $(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
+OBJECTS = $(patsubst src/%.cpp, obj/%.o, $(SRC) )
 
 all: sample.c
 
@@ -14,7 +15,7 @@ sample.c: nitwit sample.ntwt
 	@./nitwit
 
 obj/%.o: src/%.cpp
-	@mkdir -p obj/type-t obj/ast
+	@mkdir -p $(@D);
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 nitwit: $(OBJECTS)

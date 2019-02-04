@@ -18,9 +18,9 @@ public:
 		const std::string &name,
 		bool isFloat,
 		uint32_t castIndex,
-		const std::string &cName,
-		const std::string &scanfMacro,
-		const std::string &printfMacro
+		std::string cName,
+		std::string scanfMacro,
+		std::string printfMacro
 	);
 
 	const PrimitiveType& common_type(const PrimitiveType &t2) const;

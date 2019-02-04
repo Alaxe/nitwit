@@ -74,7 +74,7 @@ public:
 	Context(const GlobalContext &gc, const FunctionData &functionData);
 
 	void start_block();
-	std::vector<VarData::UPtr> end_block();
+	std::vector<VarData> end_block();
 	uint32_t get_block_id() const;
 
 	void declare_variable(std::string name, const TypeT &type);

@@ -7,7 +7,10 @@ BlockAST::BlockAST(
 	Context &context,
 	uint32_t indent
 ): indent(indent) {
-	context.update_indent(indent);
+	parId = context.get_block_id();
+	context.start_block();
+	id = context.get_block_id();
+
 	while (begin != end) {
 		const auto &tok = begin->tokens;
 		if (begin->indent < indent) {
@@ -19,7 +22,6 @@ BlockAST::BlockAST(
 				context,
 				begin->indent
 			));
-			context.update_indent(indent);
 			continue;
 		} else if (tok[0].type & TokenType::Operator) {
 			auto it = tok.begin();
@@ -35,21 +37,29 @@ BlockAST::BlockAST(
 		} else if (tok[0].type == TokenType::If) {
 			statements.emplace_back(new IfAST(begin, end, context));
 		} else if (tok[0].type == TokenType::VarDef) {
-			statements.push_back(AssignmentAST::parse_declaration(
+			auto sPtr = AssignmentAST::parse_declaration(
 				*begin,
 				context
-			));
+			);
+			if (sPtr.get()) {
+				statements.push_back(std::move(sPtr));
+			}
 			begin++;
 		}
 	}
+	declarations = context.end_block();
 }
 
-void BlockAST::generate_c(std::ostream &out, uint32_t indent) const {
-	out << std::string(' ', indent) << "{\n";
+void BlockAST::generate_c(std::ostream &out, uint32_t parIndent) const {
+	std::string indentS = std::string(' ', parIndent);
+	out << indentS << "{\n";
+	for (const auto &i : declarations) {
+		i.c_declaration(out, indent);
+	}
 	for (const auto &i : statements) {
 		i->generate_c(out, indent);
 	}
-	out << "}\n";
+	out << indentS << "}\n";
 }
 void BlockAST::generate_c(std::ostream &out) const {
 	generate_c(out, 0);

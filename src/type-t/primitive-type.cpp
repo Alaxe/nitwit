@@ -19,6 +19,22 @@ const std::string PrimitiveType::maxInt = "int64";
 const std::string PrimitiveType::maxFloat = "real";
 const std::string PrimitiveType::defaultInt = "int";
 
+PrimitiveType::PrimitiveType(
+	const std::string &name,
+	bool isFloat,
+	uint32_t castIndex,
+	std::string cName,
+	std::string scanfMacro,
+	std::string printfMacro
+):
+	name(name),
+	isFloat(isFloat),
+	castIndex(castIndex),
+	cName(std::move(cName)),
+	scanfMacro(std::move(scanfMacro)),
+	printfMacro(std::move(printfMacro))
+{}
+
 const PrimitiveType& PrimitiveType::common_type(const PrimitiveType &t2) const {
 	return t2.castIndex < castIndex ? t2 : *this;
 }

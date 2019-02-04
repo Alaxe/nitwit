@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cassert>
 
-
 FunctionData GlobalContext::parse_func_declaration(const Line &l) const {
 	if ((l.tokens.size() < 3) || (l.tokens.size() % 2 == 0)) {
 		std::cerr << "Invalid number of tokens for ";
@@ -26,7 +25,7 @@ FunctionData GlobalContext::parse_func_declaration(const Line &l) const {
 	assert(retType != nullptr);
 	assert(l.tokens.size() % 2 == 1);
 
-	std::vector<FunctionData::ArgT> args;
+	std::vector<VarData> args;
 	for (uint32_t i = 3;i < l.tokens.size();i += 2) {
 		const Token &argTypeTok = l.tokens[i];
 		const Token &argNameTok = l.tokens[i + 1];
@@ -42,7 +41,6 @@ FunctionData GlobalContext::parse_func_declaration(const Line &l) const {
 
 	return FunctionData(*retType, nameTok.s, std::move(args));
 }
-
 
 VarData GlobalContext::parse_var_declaration(const Line &l) const {
 	if (l.tokens.size() != 3) {
@@ -69,7 +67,6 @@ std::string GlobalContext::parse_struct_declaration(const Line &l) const {
 	assert(l.tokens[1].type == TokenType::Identifier);
 	return l.tokens[1].s;
 }
-
 
 StructData GlobalContext::parse_struct_definition(
 	Line::ConstIt &begin,
@@ -103,7 +100,6 @@ void GlobalContext::add_primitive_types() {
 	types[voidT->get_name()] = std::move(voidT);
 }
 
-
 GlobalContext::GlobalContext() {
 	add_primitive_types();
 }
@@ -125,8 +121,10 @@ void GlobalContext::parse(Line::ConstIt begin, Line::ConstIt end) {
 		}
 	}
 	auto i = begin;
+	bool inFunction = false;
 	while (i != end) {
 		if (i->indent > 0) {
+			assert(inFunction);
 			i++;
 			continue;
 		}
@@ -135,22 +133,23 @@ void GlobalContext::parse(Line::ConstIt begin, Line::ConstIt end) {
 			declare_function(std::move(
 				parse_func_declaration(*i++)
 			));
+			inFunction = true;
 		} else if (tt == TokenType::VarDef) {
 			declare_variable(std::move(
 				parse_var_declaration(*i++)
 			));
+			inFunction = false;
 		} else if (tt == TokenType::StructDef) {
 			define_struct(std::move(
 				parse_struct_definition(i, end)
 			));
+			inFunction = false;
 		} else {
 			std::cerr << "invalid top level construct" << std::endl;
 			assert(false);
 		}
 	}
 }
-
-
 
 void GlobalContext::declare_function(FunctionData func) {
 	assert(get_function(func.name) == nullptr);
@@ -167,8 +166,6 @@ void GlobalContext::declare_variable(VarData var) {
 
 	variables.emplace(std::move(name), new VarData(std::move(var)));
 }
-
-
 
 void GlobalContext::declare_struct(std::string name) {
 	assert(structs.find(name) == structs.end());
@@ -245,7 +242,7 @@ void GlobalContext::generate_c(std::ostream &out) const {
 		i.second->c_define_type(out);
 	}
 	for (const auto &i : functions) {
-		i.second->generate_c(out);
+		i.second->c_prototype(out);
 		out << ";\n";
 	}
 
@@ -257,8 +254,13 @@ void GlobalContext::generate_c(std::ostream &out) const {
 Context::Block::Block(uint32_t id): id(id) {}
 
 Context::Context(const GlobalContext &gc, const FunctionData &functionData):
-	nextBlockId(0), gc(gc), functionData(functionData) {}
-
+	nextBlockId(0), gc(gc), functionData(functionData) 
+{
+	start_block();
+	for (const auto &i : functionData.args) {
+		declare_variable(i.name, i.type);
+	}
+}
 
 uint32_t Context::get_block_id() const {
 	return blockSt.top().id;
@@ -266,10 +268,11 @@ uint32_t Context::get_block_id() const {
 void Context::start_block() {
 	blockSt.emplace(nextBlockId++);
 }
-std::vector<VarData::UPtr> Context::end_block() {
-	std::vector<VarData::UPtr> ans;
+std::vector<VarData> Context::end_block() {
+	std::vector<VarData> ans;
 	for (const std::string &s : blockSt.top().vars) {
-		ans.push_back(std::move(varSt[s].top()));
+		ans.push_back(std::move(*varSt[s].top()));
+		varSt[s].pop();
 	}
 	blockSt.pop();
 	return ans;

@@ -24,7 +24,8 @@ int main() {
 
 	GlobalContext globalContext = GlobalContext(code.begin(), code.end());
 	std::vector<Function> functions = Function::parse_all(
-		code,
+		code.begin(),
+		code.end(),
 		globalContext
 	);
 

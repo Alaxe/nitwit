@@ -11,6 +11,6 @@ std::string TypeT::c_name() const {
 
 std::string TypeT::get_name() const {
 	std::stringstream s;
-	name(s);
+	get_name(s);
 	return s.str();
 }

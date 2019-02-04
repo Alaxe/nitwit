@@ -2,6 +2,13 @@
 
 #include <cassert>
 
+bool ExprAST::is_lvalue() const {
+	return lvalue;
+}
+const TypeT* ExprAST::get_result_type() const {
+	return resultType;
+}
+
 void ExprAST::generate_c(std::ostream &out) const {
 	generate_expr(out);
 	out << ";\n";
