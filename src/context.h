@@ -47,7 +47,7 @@ public:
 
 	const FunctionData* get_function(const std::string &name) const;
 	const VarData* get_variable(const std::string &name) const;
-	const TypeT* get_type(const std::string &name, uint32_t i = 0) const;
+	const TypeT* get_type(std::string name) const;
 	const TypeT* get_null_type() const;
 
 	void generate_c(std::ostream &out) const;

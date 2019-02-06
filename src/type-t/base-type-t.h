@@ -17,6 +17,7 @@ public:
 
 	virtual void c_declare_type(std::ostream &s) const = 0;
 	virtual void c_define_type(std::ostream &s) const = 0;
+	virtual void c_define_helpers(std::ostream &s) const = 0;
 
 	virtual void c_name(std::ostream &s) const = 0;
 	virtual std::string c_name() const;

@@ -1,21 +1,11 @@
-$@ int64 fact int a
-    ? a
-        => * a @fact - a 1
-    !
-        => 1
+$: pair
+    $ int first
+    $ uint second
+    $ pair p
 
-$@ void factor int num int curD
-    ? < // num curD 1
-        << curD
-        @factor / num curD curD
-    !? > * curD curD num
-        ? > num 1
-            << num
-    !
-        @factor num + 1 curD
-
+$ pair p
 $@ int main
-    $ int a
-    >> a
-    ;<< @ fact a
-    @factor a 2
+    $ #~pair arr1
+    $ ~##~pair arr2
+    $ #~#int arr3
+    => 1

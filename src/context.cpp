@@ -200,26 +200,33 @@ const VarData* GlobalContext::get_variable(const std::string &name) const {
 	}
 }
 
-const TypeT* GlobalContext::get_type(const std::string &name, uint32_t i)
+const TypeT* GlobalContext::get_type(std::string name)
 const {
-	assert(name.size() > i);
+//	for (const auto &p : types) {
+//		std::cerr << p.first << " : ";
+//		p.second->get_name(std::cerr);
+//		std::cerr << " a.k.a. ";
+//		p.second->c_name(std::cerr);
+//		std::cerr << "\n";
+//	}
 	auto it = types.find(name);
 	if (it != types.end()) {
 		return it->second.get();
 	}
 	bool weak;
-	if (name[i] == '#') {
+	assert(!name.empty());
+	if (name[0] == '#') {
 		weak = false;
 	} else if (
-		(name.size() > i + 1)
-		&& (name[i] == '~')
-		&& (name[i + 1] == '#')
+		(name.size() > 1)
+		&& (name[0] == '~')
+		&& (name[0 + 1] == '#')
 	) {
 		weak = true;
 	} else {
 		assert(false);
 	}
-	const TypeT *elT = get_type(name, i + 1 + weak);
+	const TypeT *elT = get_type(name.substr(1 + weak));
 	assert(elT != nullptr);
 	assert(elT->is_declarable());
 	auto p = ArrayType::make_pair(*elT);
@@ -238,23 +245,32 @@ void GlobalContext::generate_c(std::ostream &out) const {
 	for (const auto &i : types) {
 		i.second->c_declare_type(out);
 	}
+	out << "\n";
 	for (const auto &i : types) {
 		i.second->c_define_type(out);
 	}
-	for (const auto &i : functions) {
-		i.second->c_prototype(out);
-		out << ";\n";
+	out << "\n";
+	for (const auto &i : types) {
+		i.second->c_define_helpers(out);
 	}
+	out << "\n";
 
 	for (const auto &i : variables) {
 		i.second->c_declaration(out);
 	}
+	out << "\n";
+	for (const auto &i : functions) {
+		i.second->c_prototype(out);
+		out << ";\n";
+	}
+	out << "\n";
+
 }
 
 Context::Block::Block(uint32_t id): id(id) {}
 
 Context::Context(const GlobalContext &gc, const FunctionData &functionData):
-	nextBlockId(0), gc(gc), functionData(functionData) 
+	nextBlockId(0), gc(gc), functionData(functionData)
 {
 	start_block();
 	for (const auto &i : functionData.args) {

@@ -32,7 +32,7 @@ std::unordered_map<TokenType, OperatorData> OperatorData::operators = {
 
 	{TokenType::And, {TokenType::And, false, false, "&"}},
 	{TokenType::Or, {TokenType::Or, false, false, "|"}},
-	{TokenType::Xor, {TokenType::Xor, false, false, "!", "!=", "!"}},
+	{TokenType::Xor, {TokenType::Xor, false, false, "!", "!= !", ""}},
 	{TokenType::Not, {TokenType::Not, false, false, "~"}},
 
 };

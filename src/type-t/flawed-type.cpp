@@ -10,3 +10,4 @@ bool FlawedType::is_declarable() const {
 	
 void FlawedType::c_declare_type(std::ostream &) const {}
 void FlawedType::c_define_type(std::ostream &) const {}
+void FlawedType::c_define_helpers(std::ostream &s) const {}

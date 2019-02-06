@@ -1,0 +1,7 @@
+$@ int main
+    $ int a
+    >> a
+    $ int b a
+        $ int a
+        >> a
+        << ^ a b

@@ -36,6 +36,8 @@ public:
 	void get_name(std::ostream &s) const override;
 	void c_declare_type(std::ostream &s) const override;
 	void c_define_type(std::ostream &s) const override;
+	void c_define_helpers(std::ostream &s) const override;
+
 	void c_name(std::ostream &s) const override;
 
 	static const std::string maxInt;

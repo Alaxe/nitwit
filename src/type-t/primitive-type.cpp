@@ -54,25 +54,28 @@ bool PrimitiveType::is_declarable() const {
 void PrimitiveType::get_name(std::ostream &s) const {
 	s << name;
 }
+
 void PrimitiveType::c_declare_type(std::ostream &s) const {
 	if (castIndex == 0) {
 		s << "#include <inttypes.h>\n";
 		s << "#include <stdio.h>\n";
 	}
 }
-void PrimitiveType::c_define_type(std::ostream &s) const {
+void PrimitiveType::c_define_type(std::ostream &s) const {}
+void PrimitiveType::c_define_helpers(std::ostream &s) const {
 	s << "int32_t ";
 	c_read_function(s);
 	s << "(" << cName << " *a) {\n";
-	s << "\treturn scanf(\"%\" " << scanfMacro << ", a) > 0 ? 1 : 0;\n";
+	s << "    return scanf(\"%\" " << scanfMacro << ", a) > 0 ? 1 : 0;\n";
 	s << "}\n";
 
 	s << "int32_t ";
 	c_write_function(s);
 	s << "(" << cName << " a) {\n";
-	s << "\treturn printf(\"%\" " << printfMacro << " \"\\n\", a) > 0 ? 1 : 0;\n";
+	s << "    return printf(\"%\" " << printfMacro << " \"\\n\", a) > 0 ? 1 : 0;\n";
 	s << "}\n";
 }
+
 void PrimitiveType::c_name(std::ostream &s) const {
 	s << cName;
 }

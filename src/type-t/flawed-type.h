@@ -4,9 +4,10 @@
 class FlawedType : public TypeT {
 public:
 	virtual ~FlawedType();
-	virtual bool assignable(const TypeT &a) const override;
-	virtual bool is_declarable() const override;
+	bool assignable(const TypeT &a) const override;
+	bool is_declarable() const override;
 
-	virtual void c_declare_type(std::ostream &s) const override;
-	virtual void c_define_type(std::ostream &s) const override;
+	void c_declare_type(std::ostream &s) const override;
+	void c_define_type(std::ostream &s) const override;
+	void c_define_helpers(std::ostream &s) const override;
 };

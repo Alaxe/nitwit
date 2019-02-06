@@ -30,6 +30,7 @@ int main() {
 	);
 
 	std::ofstream fout("sample.c");
+	fout << "#include <stdlib.h>\n";
 	globalContext.generate_c(fout);
 
 	for (const auto &f : functions) {
