@@ -45,6 +45,8 @@ ExprAST::UPtr ExprAST::parse(
 			ans = new ReadAST(begin, end, context);
 		} else if (tt == TokenType::Write) {
 			ans = new WriteAST(begin, end, context);
+		} else if (tt == TokenType::Alloc) {
+			ans = new AllocationAST(begin, end, context);
 		}
 	} else {
 		assert(false);

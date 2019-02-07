@@ -19,5 +19,5 @@ public:
 		const Context &context
 	);
 
-	virtual void generate_expr(std::ostream &out) const;
+	void generate_expr(std::ostream &out) const;
 };

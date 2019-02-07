@@ -8,4 +8,7 @@ $@ int main
     $ #~pair arr1
     $ ~##~pair arr2
     $ #~#int arr3
+    % pair
+    % #int + 2 3
+    ;% #pair 2.0
     => 1
