@@ -312,5 +312,7 @@ void NonPrimitiveType::c_define_helpers(std::ostream &s) const {
 	c_define_arg_pass_wl(s);
 	c_define_arg_pass_wr(s);
 
+	c_define_norm_wval(s);
+
 	c_define_extra_functions(s);
 }

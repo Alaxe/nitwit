@@ -12,6 +12,10 @@ $@ #int fill_arr #int arr int ind int size
 $ pair p
 $@ int main
     $ int i
+    $ ~#int a1
+    $ #int a2 a1
+
     >> i
     << # @fill_arr % #int + i 1 0 + i 1 i
+    @fill_arr a1 0 0
     => 1

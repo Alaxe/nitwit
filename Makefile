@@ -1,12 +1,12 @@
 CC=g++
-CFLAGS=-std=c++11 -fsanitize=address -Wall -Wextra -Wpedantic
+CPPFLAGS=-std=c++11 -fsanitize=address -Wall -Wextra -Wpedantic
 SRC = $(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
 OBJECTS = $(patsubst src/%.cpp, obj/%.o, $(SRC) )
 
 all: sample.c
 
 sample: sample.c
-	gcc sample.c -o sample -Wall -Wextra -Wpedantic
+	gcc sample.c -o sample -Wall -Wextra -Wpedantic -fsanitize=address
 
 run_c: sample
 	./sample
@@ -16,10 +16,10 @@ sample.c: nitwit sample.ntwt
 
 obj/%.o: src/%.cpp
 	@mkdir -p $(@D);
-	$(CC) -o $@ -c $(CFLAGS) $<
+	$(CC) -o $@ -c $(CPPFLAGS) $<
 
 nitwit: $(OBJECTS)
-	$(CC) -o nitwit $(CFLAGS) $(OBJECTS)
+	$(CC) -o nitwit $(CPPFLAGS) $(OBJECTS)
 
 clean:
 	rm -rf obj

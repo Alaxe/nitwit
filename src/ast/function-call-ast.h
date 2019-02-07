@@ -10,11 +10,13 @@ protected:
 	const FunctionData *func;
 	std::vector<ExprAST::UPtr> args;
 
+	void gen_arg_pass(std::ostream &out, uint32_t argI) const;
+
 public:
 	FunctionCallAST(	
 		Token::ConstIt &begin,
 		Token::ConstIt end,
 		const Context &context
 	);
-	virtual void generate_expr(std::ostream &out) const;
+	void generate_expr(std::ostream &out) const;
 };

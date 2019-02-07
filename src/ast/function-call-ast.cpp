@@ -2,6 +2,30 @@
 
 #include <cassert>
 
+void FunctionCallAST::gen_arg_pass(std::ostream &out, uint32_t argI) const {
+	const ExprAST* argV = args[argI].get();
+
+	const auto *npT = dynamic_cast<const NonPrimitiveType*>(
+		argV->get_result_type()
+	);
+	if (npT) {
+		npT->c_arg_pass_name(out, argV->is_lvalue());
+		out << "(";
+		if (npT->weak()) {
+			npT->c_norm_wval_name(out);
+			out << "(";
+		}
+	}
+
+	argV->generate_expr(out);
+	if (npT) {
+		if (npT->weak()) {
+			out << ")";
+		}
+		out << ")";
+	}
+}
+
 FunctionCallAST::FunctionCallAST(
 	Token::ConstIt &begin,
 	Token::ConstIt end,
@@ -30,10 +54,10 @@ void FunctionCallAST::generate_expr(std::ostream &out) const {
 	func->c_name(out);
 	out << "(";
 	if (!args.empty()) {
-		args[0]->generate_expr(out);
+		gen_arg_pass(out, 0);
 		for (uint32_t i = 1;i < args.size();i++) {
 			out << ", ";
-			args[i]->generate_expr(out);
+			gen_arg_pass(out, i);
 		}
 	}
 	out << ")";
