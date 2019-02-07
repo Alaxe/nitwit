@@ -11,7 +11,7 @@ LiteralAST::LiteralAST(const Token &t, const Context &context) {
 	} else if (t.type == TokenType::LitFloat) {
 		resultType = context.get_type(PrimitiveType::maxFloat);
 	} else if (t.type == TokenType::LitNull) {
-		assert(false);
+		resultType = context.get_null_type();
 	} else {
 		assert(false);
 	}

@@ -45,12 +45,12 @@ void AssignmentAST::generate_expr(std::ostream &out) const {
 		out << "(&";
 		lhs->generate_expr(out);
 		out << ", ";
-		if (rType->weak()) {
+		if ((rType) && (rType->weak())) {
 			rType->c_norm_wval_name(out);
 			out << "(";
 		}
 		rhs->generate_expr(out);
-		if (rType->weak()) {
+		if ((rType) && (rType->weak())) {
 			out << ")";
 		}
 		out << ")";

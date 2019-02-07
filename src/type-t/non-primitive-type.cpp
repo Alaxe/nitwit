@@ -1,4 +1,5 @@
 #include "non-primitive-type.h"
+#include "null-type.h"
 
 void NonPrimitiveType::c_assign_name(
 	std::ostream &s,
@@ -233,10 +234,13 @@ bool NonPrimitiveType::weak() const {
 
 bool NonPrimitiveType::assignable(const TypeT &a) const {
 	const NonPrimitiveType *p = dynamic_cast<const NonPrimitiveType*>(&a);
-	if (p == nullptr) {
+	if (p) {
+		return &rvalue_conversion() == &p->rvalue_conversion();
+	} else if (dynamic_cast<const NullType*> (&a)) {
+		return true;
+	} else {
 		return false;
 	}
-	return &rvalue_conversion() == &p->rvalue_conversion();
 }
 bool NonPrimitiveType::is_declarable() const {
 	return true;

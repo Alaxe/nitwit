@@ -49,6 +49,11 @@ ExprAST::UPtr ExprAST::parse(
 			ans = new AllocationAST(begin, end, context);
 		} else if (tt == TokenType::Index) {
 			ans = new IndexAST(begin, end, context);
+		} else if (
+			(tt == TokenType::Equal)
+			|| (tt == TokenType::NotEqual)
+		) {
+			ans = new ComparisonAST(begin, end, context);
 		}
 	} else {
 		assert(false);

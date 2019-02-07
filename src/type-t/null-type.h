@@ -4,8 +4,8 @@
 class NullType : public FlawedType {
 public:
 	typedef std::unique_ptr<NullType> UPtr;
-	virtual ~NullType();
 
+	bool assignable(const TypeT &a) const override;
 	using TypeT::get_name;
 	virtual void get_name(std::ostream &s) const override;
 	using TypeT::c_name;

@@ -4,6 +4,7 @@
 #include "ast/assignment-ast.h"
 #include "ast/binary-operator-ast.h"
 #include "ast/block-ast.h"
+#include "ast/comparison-ast.h"
 #include "ast/expr-ast.h"
 #include "ast/function-call-ast.h"
 #include "ast/if-ast.h"

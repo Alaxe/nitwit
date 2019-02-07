@@ -61,7 +61,7 @@ void PrimitiveType::c_declare_type(std::ostream &s) const {
 		s << "#include <stdio.h>\n";
 	}
 }
-void PrimitiveType::c_define_type(std::ostream &s) const {}
+void PrimitiveType::c_define_type(std::ostream &) const {}
 void PrimitiveType::c_define_helpers(std::ostream &s) const {
 	s << "int32_t ";
 	c_read_function(s);
