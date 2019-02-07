@@ -33,7 +33,16 @@ void AssignmentAST::generate_expr(std::ostream &out) const {
 	} else if (dynamic_cast<const NonPrimitiveType*>(
 		lhs->get_result_type()
 	)) {
-		assert(false);
+		const auto *lType = dynamic_cast<const NonPrimitiveType*>(
+			lhs->get_result_type()
+		);
+
+		lType->c_assign_name(out, rhs->is_lvalue());
+		out << "(&";
+		lhs->generate_expr(out);
+		out << ", ";
+		rhs->generate_expr(out);
+		out << ")";
 	} else {
 		assert(false);
 	}

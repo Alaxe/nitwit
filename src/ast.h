@@ -7,6 +7,7 @@
 #include "ast/expr-ast.h"
 #include "ast/function-call-ast.h"
 #include "ast/if-ast.h"
+#include "ast/index-ast.h"
 #include "ast/literal-ast.h"
 #include "ast/read-ast.h"
 #include "ast/return-ast.h"

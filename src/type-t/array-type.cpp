@@ -50,7 +50,7 @@ void ArrayType::c_define_index_l(std::ostream &s) const {
 	c_index_args(s);
 	s << " {\n";
 
-	s << "    return a->v[i];\n";
+	s << "    return &a->v[i];\n";
 	s << "}\n";
 }
 void ArrayType::c_define_index_r(std::ostream &s) const {
@@ -89,6 +89,9 @@ std::pair<ArrayType::UPtr, ArrayType::UPtr> ArrayType::make_pair(
 }
 
 void ArrayType::c_index_name(std::ostream &s, bool lvalue) const {
+	if (lvalue) {
+		s << "*";
+	}
 	s << "index_";
 	s << (lvalue ? 'l' : 'r') << '_';
 	c_name_raw(s);

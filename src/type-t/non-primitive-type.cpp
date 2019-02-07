@@ -5,7 +5,7 @@ void NonPrimitiveType::c_assign_name(
 	bool isWeak,
 	bool lvalue
 ) const {
-	s << "assign_";
+	s << "*assign_";
 	s << (isWeak ? 'w' : 's');
 	s << (lvalue ? 'l' : 'r');
 	s << '_';
@@ -92,7 +92,7 @@ void NonPrimitiveType::c_define_norm_wval(std::ostream &s) const {
 
 void NonPrimitiveType::c_define_assign_sl(std::ostream &s) const {
 	c_name(s);
-	s << "* ";
+	s << " ";
 	c_assign_name(s, false, true);
 	c_assign_args(s);
 	s << " {\n";
@@ -109,7 +109,7 @@ void NonPrimitiveType::c_define_assign_sl(std::ostream &s) const {
 }
 void NonPrimitiveType::c_define_assign_sr(std::ostream &s) const {
 	c_name(s);
-	s << "* ";
+	s << " ";
 	c_assign_name(s, false, false);
 	c_assign_args(s);
 	s << " {\n";
@@ -123,7 +123,7 @@ void NonPrimitiveType::c_define_assign_sr(std::ostream &s) const {
 }
 void NonPrimitiveType::c_define_assign_wl(std::ostream &s) const {
 	c_name(s);
-	s << "* ";
+	s << " ";
 	c_assign_name(s, true, true);
 	c_assign_args(s);
 	s << " {\n";
@@ -140,7 +140,7 @@ void NonPrimitiveType::c_define_assign_wl(std::ostream &s) const {
 }
 void NonPrimitiveType::c_define_assign_wr(std::ostream &s) const {
 	c_name(s);
-	s << "* ";
+	s << " ";
 	c_assign_name(s, true, false);
 	c_assign_args(s);
 	s << " {\n";
