@@ -68,6 +68,7 @@ void NonPrimitiveType::c_define_destroy(std::ostream &s) const {
 	s << "(";
 	c_name(s);
 	s << " a) {\n";
+	s << "    printf(\"woo hoo, destroying\\n\");\n";
 
 	c_destroy_members(s);
 	s <<
@@ -83,7 +84,7 @@ void NonPrimitiveType::c_define_norm_wval(std::ostream &s) const {
 	c_standard_args(s);
 	s << " {\n";
 	
-	s << "    if ((a) && (a->w_cnt == 0)) {\n";
+	s << "    if ((a) && (a->s_cnt == 0)) {\n";
 	s << "        return NULL;\n";
 	s << "    } else {\n";
 	s << "        return a;\n";

@@ -54,6 +54,8 @@ ExprAST::UPtr ExprAST::parse(
 			|| (tt == TokenType::NotEqual)
 		) {
 			ans = new ComparisonAST(begin, end, context);
+		} else if (tt == TokenType::ArrSize) {
+			ans = new ArraySizeAST(begin, end, context);
 		}
 	} else {
 		assert(false);
