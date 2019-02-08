@@ -20,6 +20,7 @@ public:
 	bool is_lvalue() const;
 	const TypeT* get_result_type() const;
 
+	using StatementAST::generate_c;
 	virtual void generate_c(std::ostream &out) const;
 	virtual void generate_expr(std::ostream &out) const = 0;
 

@@ -3,24 +3,30 @@
 #include "variable-ast.h"
 
 #include <cassert>
+#include <iostream>
 
-AssignmentAST::AssignmentAST() {
+void AssignmentAST::init() {
+	assert(lhs->is_lvalue());
+	assert(lhs->get_result_type()->assignable(*rhs->get_result_type()));
+
+	resultType = lhs->get_result_type();
 	lvalue = true;
+}
+
+AssignmentAST::AssignmentAST(ExprAST::UPtr lhs, ExprAST::UPtr rhs):
+	lhs(std::move(lhs)), rhs(std::move(rhs))
+{
+	init();
 }
 AssignmentAST::AssignmentAST(
 	Token::ConstIt &begin,
 	Token::ConstIt end,
 	const Context &context
-) {
-	begin++;
-	lhs = ExprAST::parse(begin, end, context);
-	rhs = ExprAST::parse(begin, end, context);
-
-	assert(lhs->is_lvalue());
-	assert(lhs->get_result_type()->assignable(*rhs->get_result_type()));
-
-	lvalue = true;
-	resultType = lhs->get_result_type();
+):
+	lhs(ExprAST::parse(++begin, end, context)),
+	rhs(ExprAST::parse(begin, end, context))
+{
+	init();
 }
 
 void AssignmentAST::generate_expr(std::ostream &out) const {
@@ -73,15 +79,22 @@ AssignmentAST::UPtr AssignmentAST::parse_declaration(
 	assert(varT);
 	assert(varT->is_declarable());
 
+	ExprAST::UPtr lhs;
+
 	AssignmentAST::UPtr ans;
-
-	if (tok.size() > 3) {
-		ans = AssignmentAST::UPtr(new AssignmentAST());
-
+	if (tok.size() == 3) {
+		context.declare_variable(tok[2].s, *varT);
+		return nullptr;
+	} else {
 		auto it = tok.begin() + 3;
-		ans->rhs = ExprAST::parse(it, tok.end(), context);
-		assert(varT->assignable(*ans->rhs->get_result_type()));
+		ExprAST::UPtr rhs = ExprAST::parse(it, tok.end(), context);
 		assert(it == tok.end());
+
+		context.declare_variable(tok[2].s, *varT);
+		return AssignmentAST::UPtr(new AssignmentAST(
+			ExprAST::UPtr(new VariableAST(tok[2], context)),
+			std::move(rhs)
+		));
 	}
 
 	context.declare_variable(tok[2].s, *varT);

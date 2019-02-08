@@ -3,10 +3,14 @@
 
 class AssignmentAST : public ExprAST {
 protected:
-	ExprAST::UPtr lhs, rhs;
-	AssignmentAST();
+	ExprAST::UPtr lhs;
+	ExprAST::UPtr rhs;
+
+	void init();
 public:
 	typedef std::unique_ptr<AssignmentAST> UPtr;
+
+	AssignmentAST(ExprAST::UPtr lhs, ExprAST::UPtr rhs);
 	AssignmentAST(
 		Token::ConstIt &begin,
 		Token::ConstIt end,

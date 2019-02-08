@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 
+
 FunctionData GlobalContext::parse_func_declaration(const Line &l) const {
 	if ((l.tokens.size() < 3) || (l.tokens.size() % 2 == 0)) {
 		std::cerr << "Invalid number of tokens for ";
@@ -325,3 +326,11 @@ const TypeT* Context::get_type(const std::string &name) const {
 const TypeT* Context::get_null_type() const {
 	return gc.get_null_type();
 }
+
+void Context::c_end_label(std::ostream &out, uint32_t id) {
+	out << "l_end_" << id;
+}
+void Context::c_return_label(std::ostream &out, uint32_t id) {
+	out << "l_return_" << id;
+}
+

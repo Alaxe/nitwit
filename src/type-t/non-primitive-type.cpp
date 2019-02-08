@@ -68,7 +68,7 @@ void NonPrimitiveType::c_define_destroy(std::ostream &s) const {
 	s << "(";
 	c_name(s);
 	s << " a) {\n";
-	s << "    printf(\"woo hoo, destroying\\n\");\n";
+	//s << "    printf(\"woo hoo, destroying\\n\");\n";
 
 	c_destroy_members(s);
 	s <<
@@ -254,6 +254,9 @@ void NonPrimitiveType::c_name(std::ostream &s) const {
 	s << "struct ";
 	c_name_raw(s);
 	s << '*';
+}
+void NonPrimitiveType::c_default_value(std::ostream &s) const {
+	s << "NULL";
 }
 void NonPrimitiveType::c_alloc_name(std::ostream &s) const {
 	s << "alloc_";

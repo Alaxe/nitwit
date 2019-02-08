@@ -39,6 +39,7 @@ public:
 	void c_define_helpers(std::ostream &s) const override;
 
 	void c_name(std::ostream &s) const override;
+	void c_default_value(std::ostream &s) const override;
 
 	static const std::string maxInt;
 	static const std::string maxFloat;

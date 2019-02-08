@@ -1,6 +1,7 @@
 #include "../ast.h"
 
 #include <cassert>
+#include <iostream>
 
 bool ExprAST::is_lvalue() const {
 	return lvalue;
@@ -56,6 +57,8 @@ ExprAST::UPtr ExprAST::parse(
 			ans = new ComparisonAST(begin, end, context);
 		} else if (tt == TokenType::ArrSize) {
 			ans = new ArraySizeAST(begin, end, context);
+		} else {
+			assert(false);
 		}
 	} else {
 		assert(false);

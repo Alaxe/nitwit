@@ -79,3 +79,7 @@ void PrimitiveType::c_define_helpers(std::ostream &s) const {
 void PrimitiveType::c_name(std::ostream &s) const {
 	s << cName;
 }
+void PrimitiveType::c_default_value(std::ostream &s) const {
+	s << "0";
+}
+

@@ -17,13 +17,20 @@ Function::Function(
 	body = std::unique_ptr<StatementAST>(
 		new BlockAST(begin, end, context, 1)
 	);
+
 }
 
 void Function::generate_c(std::ostream &out) const {
 	proto->c_prototype(out);
 	out << "\n{\n";
+	ResultAST::c_declare_result(out, proto->returnT);
 
 	body->generate_c(out);
+
+	Context::c_return_label(out, 0);
+	out << ":\n";
+	VarData::c_generate_destructors(out, proto->args);
+	ResultAST::c_return_result(out, proto->returnT);
 	out << "}\n";
 }
 

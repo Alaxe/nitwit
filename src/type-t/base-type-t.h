@@ -20,5 +20,6 @@ public:
 	virtual void c_define_helpers(std::ostream &s) const = 0;
 
 	virtual void c_name(std::ostream &s) const = 0;
+	virtual void c_default_value(std::ostream &s) const;
 	virtual std::string c_name() const;
 };

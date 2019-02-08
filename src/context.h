@@ -83,4 +83,7 @@ public:
 	const VarData* get_variable(const std::string &name) const;
 	const TypeT* get_type(const std::string &name) const;
 	const TypeT* get_null_type() const;
+
+	static void c_end_label(std::ostream &out, uint32_t id);
+	static void c_return_label(std::ostream &out, uint32_t id);
 };

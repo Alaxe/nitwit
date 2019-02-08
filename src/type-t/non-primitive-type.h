@@ -51,6 +51,7 @@ public:
 	virtual void c_name_raw(std::ostream &s) const = 0;
 	using TypeT::c_name;
 	void c_name(std::ostream &s) const override;
+	void c_default_value(std::ostream &s) const override;
 
 	void c_alloc_name(std::ostream &s) const;
 	void c_assign_name(std::ostream &s, bool lvalue) const;

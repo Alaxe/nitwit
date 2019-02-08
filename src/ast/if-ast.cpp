@@ -6,7 +6,7 @@ IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 	uint32_t indent = begin->indent;
 	while (begin != end) {
 		const auto &tok = begin->tokens;
-		if (tok[0].type != nextIf) {
+		if ((tok[0].type != nextIf) || (begin->indent < indent)) {
 			break;
 		}
 		auto it = tok.begin() + 1;
@@ -41,6 +41,7 @@ IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 			indent
 		));
 	}
+
 }
 
 void IfAST::generate_c(std::ostream &out) const {
