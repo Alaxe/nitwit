@@ -3,6 +3,7 @@
 #include "ast/allocation-ast.h"
 #include "ast/array-size-ast.h"
 #include "ast/assignment-ast.h"
+#include "ast/aug-assignment-ast.h"
 #include "ast/binary-operator-ast.h"
 #include "ast/block-ast.h"
 #include "ast/comparison-ast.h"

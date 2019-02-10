@@ -40,6 +40,12 @@ std::unordered_map<std::string, uint32_t> TokenType::tokStrings = {
 	{"^", TokenType::Xor},
 
 	{"~", TokenType::Not},
+
+	{"+=", TokenType::AugPlus},
+	{"-=", TokenType::AugMinus},
+	{"*=", TokenType::AugTimes},
+	{"/=", TokenType::AugDivide},
+	{"//=", TokenType::AugRem}
 };
 
 TokenType::TokenType(uint32_t val): val(val){}

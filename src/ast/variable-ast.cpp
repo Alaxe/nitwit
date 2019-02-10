@@ -4,7 +4,6 @@
 #include <iostream>
 
 VariableAST::VariableAST(const Token &tok, const Context &context) {
-	std::cerr << "var ast: " << tok << "\n";
 	assert(tok.type == TokenType::Identifier);
 
 	const auto *varDataRaw = context.get_variable(tok.s);

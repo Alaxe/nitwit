@@ -58,7 +58,13 @@ public:
 		Or         = 0x38000B,
 		Xor        = 0x38000C,
 
-		Not        = 0x340001
+		Not        = 0x340001,
+
+		AugPlus    = 0x320001,
+		AugMinus   = 0x320002,
+		AugTimes   = 0x320003,
+		AugDivide  = 0x320004,
+		AugRem     = 0x320005
 	};
 private:
 	static std::unordered_map<std::string, uint32_t> tokStrings;

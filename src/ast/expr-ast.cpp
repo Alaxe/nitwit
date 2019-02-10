@@ -46,7 +46,7 @@ ExprAST::UPtr ExprAST::parse(
 		} else if (tt & TokenType::UnOpr) {
 			ans = new UnaryOperatorAST(begin, end, context);
 		} else if (tt & TokenType::AugOpr) {
-			assert((tt & TokenType::AugOpr) == 0);
+			ans = new AugAssignmentAST(begin, end, context);
 		} else if (tt == TokenType::Assign) {
 			ans = new AssignmentAST(begin, end, context);
 		} else if (tt == TokenType::FuncCall) {

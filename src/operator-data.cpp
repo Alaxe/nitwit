@@ -35,6 +35,11 @@ std::unordered_map<TokenType, OperatorData> OperatorData::operators = {
 	{TokenType::Xor, {TokenType::Xor, false, false, "!", "!= !", ""}},
 	{TokenType::Not, {TokenType::Not, false, false, "~"}},
 
+	{TokenType::AugPlus, {TokenType::AugPlus, true, true, "+="}},
+	{TokenType::AugMinus, {TokenType::AugMinus, true, true, "-="}},
+	{TokenType::AugTimes, {TokenType::AugTimes, true, true, "*="}},
+	{TokenType::AugDivide, {TokenType::AugDivide, true, true, "/="}},
+	{TokenType::AugRem, {TokenType::AugRem, false, true, "%="}},
 };
 
 const OperatorData* OperatorData::get(const TokenType &t) {
