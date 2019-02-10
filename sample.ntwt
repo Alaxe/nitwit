@@ -1,3 +1,4 @@
+
 $: pair
     $ int first
     $ uint second
@@ -11,11 +12,14 @@ $@ #int fill_arr #int arr int ind
         => arr
 
 $ pair p
+$ int z
 $@ int main
     $ int i
     $ #int a1
     $ ~#int a2 a1
     $ ##int a3
+
+    % #int 10 ;test ref removal in expressions
 
     = a1 @ fill_arr % #int 10 0
     << #a1 5
@@ -24,6 +28,7 @@ $@ int main
     << == . a2
     << == a1 .
     << ~= . .
+    ? == . .
 
     = a1 .
     << == a1 a2

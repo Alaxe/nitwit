@@ -11,7 +11,16 @@ const TypeT* ExprAST::get_result_type() const {
 }
 
 void ExprAST::generate_c(std::ostream &out) const {
+	const auto *npT = dynamic_cast<const NonPrimitiveType*> (resultType);
+	bool doGc = ((npT) && (!lvalue));
+	if (doGc) {
+		npT->c_rm_ref_name(out);
+		out << "(";
+	}
 	generate_expr(out);
+	if (doGc) {
+		out << ")";
+	}
 	out << ";\n";
 }
 ExprAST::UPtr ExprAST::parse(
