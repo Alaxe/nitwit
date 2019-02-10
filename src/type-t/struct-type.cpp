@@ -17,11 +17,17 @@ void StructType::c_destroy_members(std::ostream &s) const {
 			continue;
 		}
 
-		s << "    ";
+		s << "    if(a->";
+		c_member_name(s, i.first);
+		s << ") {\n";
+
+		s << "        ";
 		mPtr->c_rm_ref_name(s);
 		s << "(a->";
 		c_member_name(s, i.first);
 		s << ");\n";
+
+		s << "    }\n";
 	}
 }
 void StructType::c_define_alloc(std::ostream &s) const {

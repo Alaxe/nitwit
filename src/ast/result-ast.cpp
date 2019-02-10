@@ -34,10 +34,9 @@ void ResultAST::c_return_result(
 	const TypeT &retT,
 	uint32_t indent
 ) {
-	if (!retT.is_declarable()) {
-		return;
-	}
-
 	out << std::string(indent, ' ');
-	out << "return " << name << ";\n";
+	if (retT.is_declarable()) {
+		out << "return " << name;
+	}
+	out << ";\n"; //the null statement for void function labels
 }

@@ -12,6 +12,7 @@
 #include "ast/index-ast.h"
 #include "ast/literal-ast.h"
 #include "ast/member-ast.h"
+#include "ast/member-ast.h"
 #include "ast/read-ast.h"
 #include "ast/result-ast.h"
 #include "ast/return-ast.h"

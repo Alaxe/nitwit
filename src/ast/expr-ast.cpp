@@ -66,6 +66,8 @@ ExprAST::UPtr ExprAST::parse(
 			ans = new ComparisonAST(begin, end, context);
 		} else if (tt == TokenType::ArrSize) {
 			ans = new ArraySizeAST(begin, end, context);
+		} else if (tt == TokenType::Member) {
+			ans = new MemberAST(begin, end, context);
 		} else {
 			assert(false);
 		}
