@@ -38,6 +38,10 @@ BlockAST::BlockAST(
 			begin++;
 		} else if (tok[0].type == TokenType::If) {
 			statements.emplace_back(new IfAST(begin, end, context));
+		} else if (tok[0].type == TokenType::While) {
+			statements.emplace_back(
+				new WhileLoopAST(begin, end, context)
+			);
 		} else if (tok[0].type == TokenType::VarDef) {
 			auto sPtr = AssignmentAST::parse_declaration(
 				*begin,

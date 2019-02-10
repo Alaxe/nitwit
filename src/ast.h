@@ -19,4 +19,5 @@
 #include "ast/statement-ast.h"
 #include "ast/unary-operator-ast.h"
 #include "ast/variable-ast.h"
+#include "ast/while-loop-ast.h"
 #include "ast/write-ast.h"

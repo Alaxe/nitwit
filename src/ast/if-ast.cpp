@@ -16,13 +16,12 @@ IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 			context
 		);
 		assert(it == tok.end());
-		uint32_t indent = begin->indent + 1;
 		begin++;
 		BlockAST::UPtr body(new BlockAST(
 			begin,
 			end,
 			context,
-			indent
+			indent + 1
 		));
 		ifPairs.push_back({std::move(condition), std::move(body)});
 		nextIf = TokenType::Elif;
@@ -32,13 +31,12 @@ IfAST::IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context) {
 		&& (begin->tokens[0].type == TokenType::Else)
 		&& (begin->indent == indent)
 	) {
-		uint32_t indent = begin->indent + 1;
 		begin++;
 		elseBody = BlockAST::UPtr(new BlockAST(
 			begin,
 			end,
 			context,
-			indent
+			indent + 1
 		));
 	}
 

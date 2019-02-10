@@ -15,6 +15,6 @@ private:
 public:
 	IfAST(Line::ConstIt &begin, Line::ConstIt end, Context &context);
 
-	void generate_c(std::ostream &out) const;
-	void generate_c(std::ostream &out, uint32_t indent) const;
+	void generate_c(std::ostream &out) const override;
+	void generate_c(std::ostream &out, uint32_t indent) const override;
 };
