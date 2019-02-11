@@ -25,9 +25,6 @@ void VarData::c_destruction(std::ostream &out, uint32_t indent) const {
 	std::string indentS = std::string(indent, ' ');
 
 	out << indentS;
-	out << "if (";
-	c_name(out);
-	out << ") ";
 	npt->c_rm_ref_name(out);
 	out << "(";
 	c_name(out);

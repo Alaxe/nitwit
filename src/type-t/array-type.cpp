@@ -12,13 +12,11 @@ void ArrayType::c_destroy_members(std::ostream &s) const {
 	const auto *elPtr = dynamic_cast<const NonPrimitiveType*>(&elementT);
 	if (elPtr != nullptr) {
 		s << "    for (uint32_t i = 0;i < a->size;i++) {\n";
-		s << "        if (a->v[i]) {\n";
 
-		s << "            ";
+		s << "        ";
 		elPtr->c_rm_ref_name(s);
 		s << "(a->v[i]);\n";
 
-		s << "        }\n";
 		s << "    }\n";
 	}
 	s << "    free(a->v);\n";

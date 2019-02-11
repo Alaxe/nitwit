@@ -102,9 +102,7 @@ void NonPrimitiveType::c_define_assign_sl(std::ostream &s) const {
 	s << "    if (b) {\n";
 	s << "        b->s_cnt++;\n";
 	s << "    }\n";
-	s << "    if (*a) {\n";
-	s << "        "; c_rm_ref_name(s, false); s << "(*a);\n";
-	s << "    }\n";
+	s << "    "; c_rm_ref_name(s, false); s << "(*a);\n";
 	s << "    *a = b;\n";
 	s << "    return a;\n";
 	s << "}\n";
@@ -115,10 +113,7 @@ void NonPrimitiveType::c_define_assign_sr(std::ostream &s) const {
 	c_assign_name(s, false, false);
 	c_assign_args(s);
 	s << " {\n";
-
-	s << "    if (*a) {\n";
-	s << "        "; c_rm_ref_name(s, false); s << "(*a);\n";
-	s << "    }\n";
+	s << "    "; c_rm_ref_name(s, false); s << "(*a);\n";
 	s << "    *a = b;\n";
 	s << "    return a;\n";
         s << "}\n";
@@ -133,9 +128,7 @@ void NonPrimitiveType::c_define_assign_wl(std::ostream &s) const {
 	s << "    if (b) {\n";
 	s << "        b->w_cnt++;\n";
 	s << "    }\n";
-	s << "    if (*a) {\n";
-	s << "        "; c_rm_ref_name(s, true) ;s << "(*a);\n";
-	s << "    }\n";
+	s << "    "; c_rm_ref_name(s, true) ;s << "(*a);\n";
 	s << "    *a = b;\n";
 	s << "    return a;\n";
 	s << "}\n";
@@ -151,9 +144,7 @@ void NonPrimitiveType::c_define_assign_wr(std::ostream &s) const {
 	s << "        b->w_cnt++;\n";
 	s << "        "; c_rm_ref_name(s, false); s << "(b);\n";
 	s << "    }\n";
-	s << "    if (*a) {\n";
-	s << "        "; c_rm_ref_name(s, true); s << "(*a);\n";
-	s << "    }\n";
+	s << "    "; c_rm_ref_name(s, true); s << "(*a);\n";
 	s << "    *a = b;\n";
 	s << "    return a;\n";
 	s << "}\n";
@@ -202,9 +193,11 @@ void NonPrimitiveType::c_define_rm_sref(std::ostream &s) const {
 	c_standard_args(s);
 	s << " {\n";
 
-	s << "    a->s_cnt--;\n";
-	s << "    if (!a->s_cnt) {\n";
-	s << "        "; c_destroy_name(s); s << "(a);\n";
+	s << "    if (a) {\n";
+	s << "        a->s_cnt--;\n";
+	s << "        if (!a->s_cnt) {\n";
+	s << "            "; c_destroy_name(s); s << "(a);\n";
+	s << "        }\n";
 	s << "    }\n";
 	s << "}\n";
 }
@@ -214,9 +207,11 @@ void NonPrimitiveType::c_define_rm_wref(std::ostream &s) const {
 	c_standard_args(s);
 	s << " {\n";
 
-	s << "    a->w_cnt--;\n";
-	s << "    if (!(a->w_cnt | a->s_cnt)) {\n";
-	s << "        free(a);\n";
+	s << "    if (a) {\n";
+	s << "        a->w_cnt--;\n";
+	s << "        if (!(a->w_cnt | a->s_cnt)) {\n";
+	s << "            free(a);\n";
+	s << "        }\n";
 	s << "    }\n";
 	s << "}\n";
 }
