@@ -1,14 +1,14 @@
 SRC = $(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
 OBJECTS = $(patsubst src/%.cpp, obj/%.o, $(SRC) )
 
-all: CXXFLAGS+=-O2
-all: nitwit
-
 CXXFLAGS=-std=c++11 -Wall -Wextra -Wpedantic
-debug: CXXFLAGS+=-fsanitize=address 
-debug: CCFLAGS+=-fsanitize=address
 
-debug: sample
+all: CXXFLAGS+=-fsanitize=address 
+all: CCFLAGS+=-fsanitize=address
+all: sample
+
+stable: CXXFLAGS+=-O2
+stable: clean nitwit
 
 sample: sample.c
 	$(CC) sample.c -o sample $(CCFLAGS)
