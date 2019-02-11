@@ -2,11 +2,21 @@
 
 #include <cassert>
 
+const std::string LiteralAST::maxInt = std::to_string(INT64_MAX);
+
+bool LiteralAST::int_lit_fits() const {
+	if (val.size() != maxInt.size()) {
+		return val.size() < maxInt.size();
+	} else {
+		return val <= maxInt;
+	}
+}
 LiteralAST::LiteralAST(const Token &t, const Context &context) {
 	val = t.s;
 	lvalue = false;
 
 	if (t.type == TokenType::LitInt) {
+		assert(int_lit_fits());
 		resultType = context.get_type(PrimitiveType::maxInt);
 	} else if (t.type == TokenType::LitFloat) {
 		resultType = context.get_type(PrimitiveType::maxFloat);

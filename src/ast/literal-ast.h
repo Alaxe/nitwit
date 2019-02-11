@@ -5,7 +5,10 @@
 
 class LiteralAST : public ExprAST {
 private:
+	static const std::string maxInt;
+
 	std::string val;
+	bool int_lit_fits() const;
 public:
 	LiteralAST(const Token &t, const Context &context);
 

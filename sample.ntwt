@@ -45,7 +45,7 @@ $@ void test_member
 
 
 $@ int main
-    $ int n
+    $ int64 n 9223372036854775807
     >> n
 
     $ int i 1
