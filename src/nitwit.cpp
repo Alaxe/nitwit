@@ -1,48 +1,23 @@
-#include <algorithm>
+#include "program.h"
 #include <cassert>
-#include <cctype>
 #include <fstream>
-#include <iostream>
-#include <memory>
-#include <unordered_map>
-#include <vector>
 
-#include "ast.h"
-#include "context.h"
-#include "function.h"
-#include "lexer.h"
-#include "operator-data.h"
-
-int main() {
-	std::ifstream fin("sample.ntwt");
-
-	auto code = Line::split_stream(fin);
-	for (auto &i : code) {
-		i.tokens = Token::tokenize(i.s);
-		std::cerr << i << "\n";
+int main(int argc, char** argv) {
+	if (argc != 3) {
+		std::cerr << "Usage ./nitwit <source file> <output file>\n";
+		return 1;
+	}
+	std::ifstream sourceFile(argv[1]);
+	if (sourceFile.fail()) {
+		std::cerr << "Could not open source file: " << argv[1] << "\n";
+		return 1;
+	}
+	std::ofstream outputFile(argv[2]);
+	if (outputFile.fail()) {
+		std::cerr << "Could not open output file: " << argv[2] << "\n";
+		return 1;
 	}
 
-	GlobalContext globalContext = GlobalContext(code.begin(), code.end());
-	std::vector<Function> functions = Function::parse_all(
-		code.begin(),
-		code.end(),
-		globalContext
-	);
-
-	std::ofstream fout("sample.c");
-	fout << "#include <stdlib.h>\n";
-	globalContext.generate_c(fout);
-
-	for (const auto &f : functions) {
-		f.generate_c(fout);
-	}
-	const FunctionData *mainData = globalContext.get_function("main");
-	assert(mainData);
-	assert(&mainData->returnT ==
-		globalContext.get_type(PrimitiveType::defaultInt)
-	);
-	assert(mainData->args.empty());
-	fout << "int main()\n{\n";
-	mainData->c_name(fout);
-	fout << "();\n}\n";
+	Program program(sourceFile);
+	program.generate_c(outputFile);
 }

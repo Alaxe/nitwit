@@ -1,28 +1,34 @@
-CC=g++
-CPPFLAGS=-std=c++11 -fsanitize=address -Wall -Wextra -Wpedantic
 SRC = $(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
 OBJECTS = $(patsubst src/%.cpp, obj/%.o, $(SRC) )
 
-all: sample.c
+all: CXXFLAGS+=-O2
+all: nitwit
+
+CXXFLAGS=-std=c++11 -Wall -Wextra -Wpedantic
+debug: CXXFLAGS+=-fsanitize=address 
+debug: CCFLAGS+=-fsanitize=address
+
+debug: sample
 
 sample: sample.c
-	gcc sample.c -o sample -Wall -Wextra -Wpedantic -fsanitize=address
+	$(CC) sample.c -o sample $(CCFLAGS)
 
 run_c: sample
 	./sample
 
 sample.c: nitwit sample.ntwt
-	@./nitwit
-
+	@./nitwit sample.ntwt sample.c
+ 
 obj/%.o: src/%.cpp
 	@mkdir -p $(@D);
-	$(CC) -o $@ -c $(CPPFLAGS) $<
+	$(CXX) -o $@ -c $(CXXFLAGS) $<
 
 nitwit: $(OBJECTS)
-	$(CC) -o nitwit $(CPPFLAGS) $(OBJECTS)
+	$(CXX) -o nitwit $(CXXFLAGS) $(OBJECTS)
 
 clean:
 	rm -rf obj
 	rm -f nitwit
+	rm -f sample.c
 
-.PHONY: clean sample
+.PHONY: clean
