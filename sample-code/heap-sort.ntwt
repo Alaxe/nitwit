@@ -1,0 +1,95 @@
+$: heap
+    $ #int e
+    $ int size
+
+$@ heap init_heap int maxSize
+    $ heap res % heap
+
+    = :res size 0
+    = :res e % #int + maxSize 1
+
+    => res
+
+$@ void push_heap heap h int a
+    += :h size 1
+    = #:h e :h size a
+
+    $ int i :h size
+    $ int nextStep 1
+    ;[] & > i 1  < #:h e i #:h e / i 2
+    [] nextStep
+        ? == i 1
+            = nextStep 0
+        !? >= #:h e i #: h e / i 2
+            = nextStep 0
+        !
+            $int t #:h e / i 2
+            = #:h e / i 2 #:h e i
+            = #: h e i t
+            /= i 2
+
+$@ void pop_heap heap h
+    = #:h e 1 #:h e :h size
+    -= :h size 1
+
+    $ int i 1
+    $ int nextStep 1
+
+    [] nextStep
+        $ int max #: h e i
+        $ int maxI i
+
+        ? <= * i 2 :h size
+            ? < #:h e * i 2 max
+                = max #:h e * i 2
+                = maxI * i 2
+        ? <= + * i 2 1 :h size
+            ? < #:h e + * i 2 1 max
+                = max #:h e + * i 2 1
+                = maxI + * i 2 1
+
+        ? == maxI i
+            = nextStep 0
+        !
+            = #:h e maxI #:h e i
+            = #:h e i max
+            = i maxI
+
+$@ #int sort_arr #int arr
+    $ heap h @init_heap |#| arr
+
+    $ int i 0
+    [] < i |#| arr
+        @push_heap h #arr i
+        += i 1
+
+    = i 0
+    [] < i |#| arr
+        = # arr i #:h e 1
+        @pop_heap h
+        += i 1
+
+    => arr
+
+$@ #int read_arr
+    $ int size
+    >> size
+
+    $ #int arr % #int size
+    $ int i 0
+    [] < i size
+        >> #arr i
+        += i 1
+
+    => arr
+
+$@ void print_arr #int arr
+    $ int i 0
+    [] < i |#| arr
+        << #arr i
+        += i 1
+
+$@ int main
+    $ #int arr @read_arr
+    @sort_arr arr
+    @print_arr arr
